@@ -1,0 +1,2143 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Lifeline — Deine Krisen- und Sicherheitsplattform</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0F1B2B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lifeline">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F1B2B;
+    --surface:#16273D;
+    --surface-2:#1E3049;
+    --line:#2A3E58;
+    --text:#F2F5F7;
+    --muted:#93A3B5;
+    --sos:#E4483C;
+    --sos-dim:#5c2622;
+    --calm:#4FA490;
+    --warn:#E8A33D;
+    --cyber:#7C8FE0;
+    --radius:18px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    overscroll-behavior-y:none;
+    -webkit-user-select:none;
+    user-select:none;
+  }
+  h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;}
+  button, input, textarea{font-family:inherit;}
+  #app{max-width:480px; margin:0 auto; min-height:100vh; position:relative; padding-bottom:110px;}
+
+  /* ---- top bar ---- */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px 20px 10px;
+  }
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand-mark{
+    width:34px;height:34px;border-radius:10px;
+    background:linear-gradient(135deg,var(--calm),#2c6b60);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Space Grotesk';font-weight:700;font-size:16px;
+  }
+  .brand-name{font-family:'Space Grotesk'; font-weight:600; font-size:17px; letter-spacing:.2px;}
+  .icon-btn{
+    width:38px;height:38px;border-radius:50%;
+    background:var(--surface); border:1px solid var(--line);
+    color:var(--text); display:flex;align-items:center;justify-content:center;
+    font-size:16px; cursor:pointer;
+  }
+
+  .screen{display:none; padding:6px 20px 20px; animation:fade .25s ease;}
+  .screen.active{display:block;}
+  @keyframes fade{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:translateY(0)}}
+
+  /* ---- home ---- */
+  .hero{padding:14px 2px 22px;}
+  .hero .eyebrow{color:var(--muted); font-size:13px; letter-spacing:.08em; text-transform:uppercase; margin-bottom:6px;}
+  .hero h1{font-size:26px; line-height:1.25; margin:0 0 8px; font-weight:600;}
+  .hero h1.sos-title{color:var(--sos); font-size:30px;}
+  .big-sos{
+    width:150px; height:150px; border-radius:50%; border:none; margin:0 auto;
+    background:radial-gradient(circle at 30% 30%, #ff6b5f, var(--sos));
+    color:#fff; font-family:'Space Grotesk'; font-weight:700; font-size:32px; letter-spacing:.04em;
+    box-shadow:0 0 0 8px rgba(228,72,60,.14), 0 10px 30px rgba(228,72,60,.4);
+    cursor:pointer;
+  }
+  .card h3.grad{
+    background:linear-gradient(90deg,#34d399,#22d3ee);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .hero p{color:var(--muted); font-size:14.5px; line-height:1.5; margin:0;}
+
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:6px;}
+  .card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px 16px; cursor:pointer; position:relative; overflow:hidden;
+    transition:transform .15s ease, border-color .15s ease;
+  }
+  .card:active{transform:scale(.97);}
+  .card .cicon{font-size:26px; margin-bottom:14px; display:block;}
+  .card h3{font-size:15px; margin:0 0 4px; font-weight:600; line-height:1.3;}
+  .card span.tag{font-size:11.5px; color:var(--muted);}
+  .card.full{grid-column:1/-1; display:flex; align-items:center; gap:14px; padding:16px;}
+  .card.full .cicon{margin:0; font-size:24px;}
+  .card.soon::after{
+    content:"BALD"; position:absolute; top:10px; right:10px;
+    font-size:9.5px; letter-spacing:.06em; color:var(--muted);
+    border:1px solid var(--line); padding:2px 6px; border-radius:20px;
+  }
+  .c-medical{border-color:#2b4a44;} .c-medical .cicon{color:var(--calm);}
+  .c-danger{border-color:#4a2a26;} .c-danger .cicon{color:var(--sos);}
+  .c-mental{border-color:#493a20;} .c-mental .cicon{color:var(--warn);}
+  .c-cyber{border-color:#2c3157;} .c-cyber .cicon{color:var(--cyber);}
+  .c-help{border-color:var(--line);} .c-help .cicon{color:var(--text);}
+
+  /* ---- floating SOS ---- */
+  .sos-float{
+    position:fixed; left:50%; transform:translateX(-50%);
+    bottom:22px; z-index:40;
+    width:min(440px,calc(100% - 40px));
+  }
+  .sos-float button{
+    width:100%; border:none; border-radius:999px; padding:16px;
+    background:var(--sos); color:#fff; font-family:'Space Grotesk'; font-weight:600; font-size:15px;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    box-shadow:0 8px 24px rgba(228,72,60,.35);
+  }
+  .sos-float .dot{width:9px;height:9px;border-radius:50%; background:#fff; animation:pulse 1.4s infinite;}
+  @keyframes pulse{0%,100%{opacity:1} 50%{opacity:.3}}
+
+  /* ---- generic header for sub-screens ---- */
+  .subhead{display:flex; align-items:center; gap:12px; padding:16px 0 18px;}
+  .back{
+    width:36px;height:36px;border-radius:50%; background:var(--surface); border:1px solid var(--line);
+    color:var(--text); display:flex;align-items:center;justify-content:center; cursor:pointer; flex:none;
+  }
+  .subhead h2{margin:0; font-size:19px; font-weight:600;}
+  .subhead p{margin:2px 0 0; color:var(--muted); font-size:13px;}
+
+  .list-item{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px;
+    padding:15px 16px; margin-bottom:10px; cursor:pointer;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .list-item .li-title{font-weight:600; font-size:14.5px;}
+  .list-item .li-sub{color:var(--muted); font-size:12.5px; margin-top:2px;}
+  .list-item .arrow{color:var(--muted); flex:none;}
+
+  .panel{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:18px;}
+  .step{display:none;}
+  .step.active{display:block; animation:fade .2s ease;}
+  .step-count{color:var(--muted); font-size:12px; margin-bottom:8px; letter-spacing:.04em; text-transform:uppercase;}
+  .step h3{margin:0 0 10px; font-size:17px; line-height:1.4;}
+  .step p{color:#D3DBE3; font-size:14.5px; line-height:1.6; margin:0;}
+  .step .warn-box{
+    margin-top:14px; background:rgba(232,163,61,.1); border:1px solid rgba(232,163,61,.35);
+    color:var(--warn); font-size:13px; padding:10px 12px; border-radius:10px;
+  }
+  .step-nav{display:flex; gap:10px; margin-top:18px;}
+  .btn{
+    border:none; border-radius:12px; padding:13px 16px; font-weight:600; font-size:14px; cursor:pointer;
+    flex:1; text-align:center;
+  }
+  .btn-primary{background:var(--calm); color:#08201b;}
+  .btn-secondary{background:var(--surface-2); color:var(--text); border:1px solid var(--line);}
+  .btn-sos{background:var(--sos); color:#fff;}
+  .btn-ghost{background:transparent; border:1px solid var(--line); color:var(--text);}
+  .btn:disabled{opacity:.4;}
+  a.btn{display:flex; align-items:center; justify-content:center; text-decoration:none;}
+
+  .call-strip{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-top:14px;
+  }
+  .call-strip .num{font-family:'Space Grotesk'; font-size:20px; font-weight:700;}
+  .call-strip .label{font-size:12.5px; color:var(--muted);}
+  .call-chip{
+    background:var(--sos); color:#fff; border:none; border-radius:999px; padding:10px 16px;
+    font-weight:600; font-size:13px; display:flex; align-items:center; gap:6px; text-decoration:none;
+  }
+
+  /* ---- CPR metronome ---- */
+  .metronome{text-align:center; margin-top:20px;}
+  .beat-ring{
+    width:150px; height:150px; border-radius:50%; margin:0 auto 16px;
+    border:2px solid var(--calm); display:flex; align-items:center; justify-content:center;
+    position:relative;
+  }
+  .beat-ring .bpm{font-family:'Space Grotesk'; font-size:30px; font-weight:700;}
+  .beat-ring .bpm-label{font-size:11px; color:var(--muted); position:absolute; bottom:34px;}
+  .beat-pulse{
+    position:absolute; inset:0; border-radius:50%; border:2px solid var(--calm); opacity:0;
+  }
+  .beat-pulse.go{animation:beat .55s ease-out;}
+  @keyframes beat{from{transform:scale(1); opacity:.9;} to{transform:scale(1.35); opacity:0;}}
+
+  /* ---- danger screen ---- */
+  .hold-wrap{margin-top:22px; text-align:center;}
+  .hold-btn{
+    width:190px; height:190px; border-radius:50%; margin:0 auto;
+    background:radial-gradient(circle at 30% 30%, #ff6b5f, var(--sos));
+    border:none; color:#fff; font-family:'Space Grotesk'; font-weight:700; font-size:15px;
+    display:flex; align-items:center; justify-content:center; text-align:center; line-height:1.4;
+    box-shadow:0 0 0 0 rgba(228,72,60,.5); position:relative;
+  }
+  .hold-btn .ring{
+    position:absolute; inset:-10px; border-radius:50%; border:3px solid rgba(228,72,60,.5);
+    clip-path: inset(0 0 0 0);
+  }
+  .hold-progress{
+    position:absolute; inset:-10px; border-radius:50%;
+    background:conic-gradient(#fff 0deg, transparent 0deg);
+    -webkit-mask:radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 6px));
+    mask:radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 6px));
+  }
+  .hold-hint{color:var(--muted); font-size:12.5px; margin-top:16px;}
+
+  .quick-row{display:flex; gap:10px; margin-top:22px;}
+  .quick{
+    flex:1; background:var(--surface); border:1px solid var(--line); border-radius:14px;
+    padding:14px 10px; text-align:center; cursor:pointer;
+  }
+  .quick .qicon{font-size:20px; display:block; margin-bottom:6px;}
+  .quick .qlabel{font-size:12px; color:var(--text); font-weight:600;}
+
+  /* ---- alarm overlay ---- */
+  .overlay{
+    position:fixed; inset:0; background:var(--ink); z-index:100; display:none;
+    flex-direction:column; align-items:center; justify-content:center; padding:30px; text-align:center;
+  }
+  .overlay.active{display:flex;}
+  .overlay .ov-ring{
+    width:130px;height:130px;border-radius:50%; border:4px solid var(--sos);
+    display:flex; align-items:center; justify-content:center; margin-bottom:22px;
+    font-family:'Space Grotesk'; font-size:38px; font-weight:700;
+  }
+  .overlay h2{margin:0 0 8px; font-size:20px;}
+  .overlay p{color:var(--muted); font-size:14px; max-width:280px; margin:0 0 26px;}
+  .overlay .ov-list{width:100%; max-width:300px; margin-bottom:20px;}
+  .overlay .ov-list .li-title{font-size:13.5px;}
+
+  /* ---- incoming call ---- */
+  .call-overlay{
+    position:fixed; inset:0; background:#000; z-index:110; display:none;
+    flex-direction:column; align-items:center; justify-content:space-between; padding:60px 30px 50px;
+  }
+  .call-overlay.active{display:flex;}
+  .call-avatar{
+    width:100px;height:100px;border-radius:50%; background:var(--surface-2);
+    display:flex; align-items:center; justify-content:center; font-size:38px; margin-top:20px;
+  }
+  .call-overlay h2{margin:14px 0 4px; font-size:22px; font-weight:600;}
+  .call-overlay p{color:var(--muted); margin:0;}
+  .call-actions{display:flex; gap:50px;}
+  .call-actions button{
+    width:64px; height:64px; border-radius:50%; border:none; font-size:24px; color:#fff; cursor:pointer;
+  }
+  .call-decline{background:var(--sos);}
+  .call-accept{background:var(--calm);}
+
+  /* ---- breathing ---- */
+  .breathe-wrap{text-align:center; margin-top:26px;}
+  .breathe-circle{
+    width:170px;height:170px;border-radius:50%; margin:0 auto;
+    background:radial-gradient(circle, rgba(79,164,144,.35), rgba(79,164,144,.05));
+    border:2px solid var(--calm);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Space Grotesk'; font-size:15px; font-weight:600;
+    transition:transform 4s ease-in-out;
+    transform:scale(0.7);
+  }
+  .breathe-circle.in{transform:scale(1.15);}
+  .breathe-circle.hold{transform:scale(1.15);}
+  .breathe-circle.out{transform:scale(0.7);}
+
+  /* ---- form ---- */
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:12.5px; color:var(--muted); margin-bottom:6px;}
+  .field input, .field textarea{
+    width:100%; background:var(--surface-2); border:1px solid var(--line); border-radius:10px;
+    padding:12px 13px; color:var(--text); font-size:14px;
+  }
+  .field textarea{resize:none; min-height:70px;}
+
+  .empty{
+    text-align:center; padding:30px 10px; color:var(--muted); font-size:13.5px;
+    border:1px dashed var(--line); border-radius:14px;
+  }
+
+  .soon-box{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px; margin-top:8px;
+  }
+  .soon-box h3{margin:0 0 8px; font-size:16px;}
+  .soon-box ul{margin:10px 0 0; padding-left:18px; color:#C7D0DA; font-size:13.5px; line-height:1.9;}
+
+  ::-webkit-scrollbar{display:none;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ================= HOME ================= -->
+  <section class="screen active" id="screen-home">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-mark">L</div>
+        <div class="brand-name">Lifeline</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div id="homeGreeting" style="font-size:12.5px; color:var(--muted);"></div>
+        <div class="icon-btn" onclick="showScreen('screen-contacts')">⚙</div>
+      </div>
+    </div>
+    <div class="hero" style="text-align:center; padding-top:6px;">
+      <button class="big-sos" onclick="showScreen('screen-danger')">SOS</button>
+      <p style="margin-top:14px;" data-i18n="heroSub">Tippen für Sofort-Alarm. Wähle unten deinen Bereich.</p>
+    </div>
+
+    <div class="grid">
+      <div class="card c-medical" onclick="showScreen('screen-medical')">
+        <span class="cicon">✚</span>
+        <h3 class="grad" data-i18n="tileMedTitle">Medizinischer Notfall</h3>
+        <span class="tag" data-i18n="tileMedTag">Anleitungen &amp; CPR</span>
+      </div>
+      <div class="card c-mental" onclick="showScreen('screen-mental')">
+        <span class="cicon">◐</span>
+        <h3 class="grad" data-i18n="tileMentalTitle">Psychische Krise</h3>
+        <span class="tag" data-i18n="tileMentalTag">Sicherheitsplan</span>
+      </div>
+      <div class="card c-cyber" onclick="showScreen('screen-cyber')">
+        <span class="cicon">◧</span>
+        <h3 class="grad" data-i18n="tileCyberTitle">Cyber-Notfall</h3>
+        <span class="tag" data-i18n="tileCyberTag">Betrug &amp; Erpressung</span>
+      </div>
+      <div class="card c-help" onclick="showScreen('screen-help')">
+        <span class="cicon">◍</span>
+        <h3 class="grad" data-i18n="tileHelpTitle">Hilfe für andere</h3>
+        <span class="tag" data-i18n="tileHelpTag">Wenn jemand Hilfe braucht</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MEDICAL ================= -->
+  <section class="screen" id="screen-medical">
+    <div class="subhead">
+      <div class="back" onclick="showScreen('screen-home')">←</div>
+      <div><h2 data-i18n="medTitle">Medizinischer Notfall</h2><p data-i18n="medSub">Wähle die Situation aus</p></div>
+    </div>
+
+    <div class="call-strip">
+      <div><div class="num" id="numAmbulance">144</div><div class="label" id="labelAmbulance" data-i18n="ambulanceLabel">Sanität</div></div>
+      <a class="call-chip" id="callAmbulance" href="tel:144"><span data-i18n="callBtn">📞 Anrufen</span></a>
+    </div>
+
+    <div class="call-strip">
+      <div><div class="num">AED</div><div class="label" data-i18n="aedLabel">Defibrillator in der Nähe finden</div></div>
+      <a class="call-chip" href="https://www.google.com/maps/search/Defibrillator+AED/" target="_blank" rel="noopener"><span data-i18n="aedBtn">📍 Suchen</span></a>
+    </div>
+
+    <div style="margin-top:16px;" id="scenario-list"></div>
+
+    <div class="panel" style="margin-top:18px;">
+      <h3 style="margin:0 0 4px; font-size:15px;" data-i18n="cprTitle">CPR-Metronom</h3>
+      <p style="color:var(--muted); font-size:13px; margin:0 0 6px;" data-i18n="cprSub">110 Schläge pro Minute für Herzdruckmassage</p>
+      <div class="metronome">
+        <div class="beat-ring">
+          <div class="beat-pulse" id="pulse"></div>
+          <div><div class="bpm" id="bpmCount">0</div></div>
+          <div class="bpm-label" data-i18n="cprLabel">Kompressionen</div>
+        </div>
+        <button class="btn btn-primary" id="metroBtn" onclick="toggleMetro()" style="max-width:220px; margin:0 auto;" data-i18n="cprStart">Starten</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- scenario detail -->
+  <section class="screen" id="screen-scenario">
+    <div class="subhead">
+      <div class="back" onclick="showScreen(stepReturnScreen)">←</div>
+      <div><h2 id="scenarioTitle">Szenario</h2><p id="scenarioSub">Schritt-für-Schritt-Anleitung</p></div>
+    </div>
+    <div class="panel" id="stepPanel"></div>
+  </section>
+
+  <!-- ================= SOS ================= -->
+  <section class="screen" id="screen-danger">
+    <div class="subhead">
+      <div class="back" onclick="showScreen('screen-home')">←</div>
+      <div><h2 data-i18n="sosTitle">SOS</h2><p data-i18n="sosSub">Halte den Button gedrückt, um Alarm auszulösen</p></div>
+    </div>
+
+    <div class="hold-wrap">
+      <button class="hold-btn" id="holdBtn">
+        <div class="hold-progress" id="holdProgress"></div>
+        <span data-i18n="holdText">3 Sek.<br>gedrückt halten</span>
+      </button>
+      <div class="hold-hint" data-i18n="holdHint">Sendet Standort &amp; Alarm an deine Vertrauenspersonen</div>
+      <button class="btn btn-ghost" style="max-width:220px; margin:14px auto 0;" onclick="silentAlarm()" data-i18n="silentAlarmBtn">Stiller Alarm senden</button>
+    </div>
+
+    <div class="quick-row">
+      <div class="quick" onclick="startFakeCall()">
+        <span class="qicon">📱</span>
+        <span class="qlabel" data-i18n="fakeCall">Fake-Anruf</span>
+      </div>
+      <div class="quick" onclick="showScreen('screen-contacts')">
+        <span class="qicon">👥</span>
+        <span class="qlabel" data-i18n="trustNet">Vertrauensnetz</span>
+      </div>
+      <a class="quick" href="tel:112" id="callGeneral" style="text-decoration:none; color:inherit;">
+        <span class="qicon">☎</span>
+        <span class="qlabel"><span data-i18n="emergency">Notruf</span> <span id="numGeneral">112</span></span>
+      </a>
+    </div>
+
+    <div class="quick-row">
+      <div class="quick" onclick="enterDisguise()">
+        <span class="qicon">🧮</span>
+        <span class="qlabel" data-i18n="disguise">Tarnmodus</span>
+      </div>
+      <div class="quick" id="audioRecBtn" onclick="toggleAudioRec()">
+        <span class="qicon">🎙</span>
+        <span class="qlabel" data-i18n="recAudio">Audio aufnehmen</span>
+      </div>
+      <div class="quick" id="videoRecBtn" onclick="toggleVideoRec()">
+        <span class="qicon">🎥</span>
+        <span class="qlabel" data-i18n="recVideo">Video aufnehmen</span>
+      </div>
+    </div>
+
+    <div id="recordingsWrap"></div>
+
+    <h3 style="font-size:14px; margin:22px 0 8px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;" data-i18n="guidedRecs">Geführte Handlungsempfehlungen</h3>
+    <div id="danger-guide-list"></div>
+  </section>
+
+  <!-- alarm overlay -->
+  <div class="overlay" id="alarmOverlay">
+    <div class="ov-ring" id="ovRing">3</div>
+    <h2 id="ovTitle">Alarm wird ausgelöst …</h2>
+    <p id="ovSub">Tippe auf Abbrechen, wenn das ein Versehen war.</p>
+    <div class="ov-list" id="ovContacts"></div>
+    <div style="display:flex; gap:10px; width:100%; max-width:300px;">
+      <button class="btn btn-secondary" onclick="cancelAlarm()" id="cancelBtn">Abbrechen</button>
+      <button class="btn btn-sos" onclick="closeAlarm()" id="closeBtn" style="display:none;">Fertig</button>
+    </div>
+  </div>
+
+  <!-- incoming fake call -->
+  <div class="call-overlay" id="callOverlay">
+    <div style="text-align:center;">
+      <div class="call-avatar">👤</div>
+      <h2 data-i18n="fakeCallName">Mama</h2>
+      <p data-i18n="fakeCallType">Mobil</p>
+    </div>
+    <div class="call-actions">
+      <button class="call-decline" onclick="endFakeCall()">✕</button>
+      <button class="call-accept" onclick="endFakeCall()">✓</button>
+    </div>
+  </div>
+
+  <!-- disguise mode (Tarnmodus) -->
+  <div class="call-overlay" id="disguiseOverlay" style="background:#111; padding:20px; justify-content:flex-start;">
+    <div style="width:100%; max-width:320px; margin:0 auto;">
+      <div id="calcDisplay" onpointerdown="calcHoldStart()" onpointerup="calcHoldEnd()" onpointerleave="calcHoldEnd()"
+        style="background:#000; color:#fff; font-family:'Space Grotesk'; font-size:44px; text-align:right; padding:30px 16px; border-radius:14px; margin-bottom:16px; min-height:60px; word-break:break-all;">0</div>
+      <div id="calcGrid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px;"></div>
+      <p style="color:#555; font-size:11px; text-align:center; margin-top:16px;" data-i18n="disguiseHint">Anzeige 1,5 Sek. gedrückt halten, um Lifeline zu öffnen</p>
+    </div>
+  </div>
+
+  <!-- toast -->
+  <div id="toast" style="position:fixed; left:50%; bottom:100px; transform:translate(-50%,20px); background:var(--surface-2); border:1px solid var(--line); color:var(--text); padding:12px 18px; border-radius:12px; font-size:13.5px; z-index:120; opacity:0; transition:all .25s ease; pointer-events:none;"></div>
+
+  <!-- ================= MENTAL ================= -->
+  <section class="screen" id="screen-mental">
+    <div class="subhead">
+      <div class="back" onclick="showScreen('screen-home')">←</div>
+      <div><h2 data-i18n="mentalTitle">Psychische Krise</h2><p data-i18n="mentalSub">Ruhe finden &amp; Unterstützung holen</p></div>
+    </div>
+
+    <div class="panel">
+      <h3 style="margin:0 0 4px; font-size:15px;" data-i18n="breatheTitle">Atemübung — Box Breathing</h3>
+      <p style="color:var(--muted); font-size:13px; margin:0;" data-i18n="breatheSub">4 Sek. ein · 4 Sek. halten · 4 Sek. aus</p>
+      <div class="breathe-wrap">
+        <div class="breathe-circle" id="breatheCircle">Start</div>
+        <button class="btn btn-primary" style="max-width:220px; margin:16px auto 0;" onclick="toggleBreathe()" id="breatheBtn" data-i18n="breatheStart">Übung starten</button>
+      </div>
+    </div>
+
+    <h3 style="font-size:14px; margin:20px 0 8px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;" data-i18n="crisisHotlines">Krisentelefone</h3>
+    <div class="call-strip">
+      <div><div class="num" id="numCrisis1">143</div><div class="label" id="labelCrisis1">Die Dargebotene Hand — rund um die Uhr</div></div>
+      <a class="call-chip" id="callCrisis1" href="tel:143">📞</a>
+    </div>
+    <div class="call-strip">
+      <div><div class="num" id="numCrisis2">147</div><div class="label" id="labelCrisis2">Pro Juventute — für Kinder &amp; Jugendliche</div></div>
+      <a class="call-chip" id="callCrisis2" href="tel:147">📞</a>
+    </div>
+
+    <h3 style="font-size:14px; margin:20px 0 8px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;" data-i18n="safetyPlanTitle">Mein Sicherheitsplan</h3>
+    <div class="panel">
+      <div class="field">
+        <label data-i18n="sp1">Meine Warnzeichen (woran merke ich, dass es schwierig wird?)</label>
+        <textarea id="sp1" placeholder="z. B. Schlafprobleme, Rückzug von Freunden …"></textarea>
+      </div>
+      <div class="field">
+        <label data-i18n="sp2">Was mir hilft, mich zu beruhigen</label>
+        <textarea id="sp2" placeholder="z. B. Musik hören, spazieren gehen, Atemübung …"></textarea>
+      </div>
+      <div class="field">
+        <label data-i18n="sp3">Person, die ich kontaktieren kann</label>
+        <input id="sp3" placeholder="Name &amp; Telefonnummer">
+      </div>
+      <button class="btn btn-primary" onclick="savePlan()" data-i18n="savePlan">Plan speichern</button>
+    </div>
+  </section>
+
+  <!-- ================= CYBER ================= -->
+  <section class="screen" id="screen-cyber">
+    <div class="subhead">
+      <div class="back" onclick="showScreen('screen-home')">←</div>
+      <div><h2 data-i18n="cyberTitle">Cyber-Notfall</h2><p data-i18n="cyberSub">Betrug, Phishing &amp; digitale Bedrohungen einschätzen</p></div>
+    </div>
+
+    <div class="panel" style="border-color:#3a5f52;">
+      <h3 style="margin:0 0 4px; font-size:15px;" data-i18n="walletTitle">🎫 Notfallkarte fürs Portemonnaie</h3>
+      <p style="color:var(--muted); font-size:13px; margin:0 0 10px;" data-i18n="walletDesc">Falls dein Handy geklaut wird, hast du diese Checkliste nicht mehr griffbereit — deshalb als kleine Karte zum Speichern/Ausdrucken, unabhängig vom Handy.</p>
+      <button class="btn btn-primary" onclick="openWalletCard()" data-i18n="walletBtn">Karte erstellen</button>
+      <div id="walletCardPreview" style="display:none; margin-top:14px; text-align:center;">
+        <canvas id="walletCanvas" style="width:100%; max-width:320px; border-radius:10px; box-shadow:0 4px 20px rgba(0,0,0,.4);"></canvas>
+        <a id="walletCardDownload" class="btn btn-primary" style="display:block; margin-top:12px;" download="lifeline-notfallkarte.png" data-i18n="walletDownload">📥 Als Bild herunterladen</a>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:14px;">
+      <h3 style="margin:0 0 4px; font-size:15px;" data-i18n="msgTitle">Nachrichtenanalyse</h3>
+      <p style="color:var(--muted); font-size:13px; margin:0 0 10px;" data-i18n="msgDesc">Verdächtige Nachricht einfügen — Lifeline prüft auf typische Betrugsmerkmale.</p>
+      <div class="field"><textarea id="msgInput" placeholder="Nachricht hier einfügen …" data-i18n-ph="msgPh"></textarea></div>
+      <button class="btn btn-primary" onclick="analyzeMessage()" data-i18n="msgBtn">Nachricht prüfen</button>
+      <div id="msgResult"></div>
+    </div>
+
+    <div class="panel" style="margin-top:14px;">
+      <h3 style="margin:0 0 4px; font-size:15px;" data-i18n="linkTitle">Linkprüfung</h3>
+      <p style="color:var(--muted); font-size:13px; margin:0 0 10px;" data-i18n="linkDesc">Prüft einen Link heuristisch auf typische Phishing-Merkmale.</p>
+      <div class="field"><input id="linkInput" placeholder="https://…"></div>
+      <button class="btn btn-primary" onclick="analyzeLink()" data-i18n="linkBtn">Link prüfen</button>
+      <div id="linkResult"></div>
+    </div>
+
+    <h3 style="font-size:14px; margin:22px 0 8px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;" data-i18n="checklists">Sicherheitschecklisten</h3>
+    <div id="cyber-guide-list"></div>
+  </section>
+
+  <!-- ================= HELP OTHERS ================= -->
+  <section class="screen" id="screen-help">
+    <div class="subhead">
+      <div class="back" onclick="showScreen('screen-home')">←</div>
+      <div><h2 data-i18n="helpTitle">Hilfe für andere</h2><p data-i18n="helpSub">Wenn jemand in deiner Nähe Hilfe braucht</p></div>
+    </div>
+    <div id="help-guide-list"></div>
+  </section>
+
+  <!-- ================= CONTACTS ================= -->
+  <section class="screen" id="screen-contacts">
+    <div class="subhead">
+      <div class="back" onclick="showScreen('screen-home')">←</div>
+      <div><h2 data-i18n="accountTitle">Mein Konto</h2><p data-i18n="accountSub">Deine Angaben — bleiben nur auf diesem Gerät gespeichert</p></div>
+    </div>
+
+    <div class="panel">
+      <h3 style="margin:0 0 4px; font-size:15px;" data-i18n="personalTitle">Persönliche Angaben</h3>
+      <p style="color:var(--muted); font-size:13px; margin:0 0 12px;" data-i18n="personalDesc">Wird lokal auf deinem Handy gespeichert — nirgendwo hochgeladen.</p>
+      <div class="field"><label data-i18n="fName">Name</label><input id="accName" placeholder="Dein Name"></div>
+      <div class="field"><label data-i18n="fAge">Alter</label><input id="accAge" type="number" placeholder="z. B. 17"></div>
+      <div class="field"><label data-i18n="fPhone">Telefonnummer</label><input id="accPhone" type="tel" placeholder="+41 79 …"></div>
+      <div class="field"><label data-i18n="fEmail">E-Mail</label><input id="accEmail" type="email" placeholder="du@beispiel.ch"></div>
+      <div class="field"><label data-i18n="fLang">Sprache</label><input id="accLang" placeholder="z. B. Deutsch"></div>
+      <div class="field"><label data-i18n="fCountry">Land</label><input id="accCountry" placeholder="z. B. Schweiz, Deutschland, USA …"></div>
+    </div>
+
+    <div class="panel" style="margin-top:14px;">
+      <h3 style="margin:0 0 4px; font-size:15px;"><span data-i18n="medInfoTitle">Medizinische Angaben</span> <span style="color:var(--muted); font-weight:400;" data-i18n="medInfoOpt">(optional)</span></h3>
+      <p style="color:var(--muted); font-size:13px; margin:0 0 12px;" data-i18n="medInfoDesc">Hilfreich für Ersthelfer im Notfall.</p>
+      <div class="field"><label data-i18n="fBlood">Blutgruppe</label><input id="accBlood" placeholder="z. B. 0 positiv"></div>
+      <div class="field"><label data-i18n="fAllergies">Allergien</label><textarea id="accAllergies" placeholder="z. B. Penicillin, Nüsse …"></textarea></div>
+      <div class="field"><label data-i18n="fMeds">Medikamente</label><textarea id="accMeds" placeholder="Regelmässige Medikamente"></textarea></div>
+      <div class="field"><label data-i18n="fConditions">Erkrankungen / weitere Hinweise</label><textarea id="accConditions" placeholder="z. B. Asthma, Diabetes …"></textarea></div>
+      <button class="btn btn-primary" onclick="saveAccount()" data-i18n="saveAccount">Konto speichern</button>
+      <div id="accSavedMsg" style="display:none; color:var(--calm); font-size:13px; margin-top:10px; text-align:center;">✓ Gespeichert</div>
+    </div>
+
+    <div class="panel" style="margin-top:14px; border-color:#3a5f52;" id="pinPanel"></div>
+
+    <h3 style="font-size:14px; margin:22px 0 8px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;" data-i18n="trustedNetwork">Vertrauensnetzwerk</h3>
+    <div id="contactList"></div>
+    <div class="panel" style="margin-top:14px;">
+      <div class="field"><label data-i18n="fName">Name</label><input id="cName" placeholder="z. B. Mama"></div>
+      <div class="field"><label data-i18n="fPhone">Telefonnummer</label><input id="cPhone" placeholder="+41 79 …" type="tel"></div>
+      <button class="btn btn-primary" onclick="addContact()" data-i18n="addPerson">Person hinzufügen</button>
+    </div>
+  </section>
+
+  <div class="sos-float">
+    <button onclick="showScreen('screen-danger')"><span class="dot"></span> SOS</button>
+  </div>
+</div>
+
+<script>
+/* ---------- country / language / emergency numbers ---------- */
+const COUNTRY_DB = {
+  'schweiz':{lang:'de', label:'CH', ambulance:'144', police:'117', fire:'118', general:'112', crisis1:{num:'143', label:'Dargebotene Hand'}, crisis2:{num:'147', label:'Pro Juventute'}},
+  'switzerland':{lang:'en', label:'CH', ambulance:'144', police:'117', fire:'118', general:'112', crisis1:{num:'143', label:'Dargebotene Hand'}, crisis2:{num:'147', label:'Pro Juventute'}},
+  'deutschland':{lang:'de', label:'DE', ambulance:'112', police:'110', fire:'112', general:'112', crisis1:{num:'0800 111 0 111', label:'Telefonseelsorge'}, crisis2:{num:'116 111', label:'Nummer gegen Kummer'}},
+  'germany':{lang:'en', label:'DE', ambulance:'112', police:'110', fire:'112', general:'112', crisis1:{num:'0800 111 0 111', label:'Telefonseelsorge'}, crisis2:{num:'116 111', label:'Kids Helpline'}},
+  'österreich':{lang:'de', label:'AT', ambulance:'144', police:'133', fire:'122', general:'112', crisis1:{num:'142', label:'Telefonseelsorge'}, crisis2:{num:'147', label:'Rat auf Draht'}},
+  'austria':{lang:'en', label:'AT', ambulance:'144', police:'133', fire:'122', general:'112', crisis1:{num:'142', label:'Telefonseelsorge'}, crisis2:{num:'147', label:'Rat auf Draht'}},
+  'frankreich':{lang:'de', label:'FR', ambulance:'15', police:'17', fire:'18', general:'112', crisis1:{num:'3114', label:'Nationale Suizidprävention'}, crisis2:{num:'119', label:'Kinderschutz'}},
+  'france':{lang:'en', label:'FR', ambulance:'15', police:'17', fire:'18', general:'112', crisis1:{num:'3114', label:'Suicide Prevention'}, crisis2:{num:'119', label:'Child Protection'}},
+  'italien':{lang:'de', label:'IT', ambulance:'118', police:'113', fire:'115', general:'112', crisis1:{num:'02 2327 2327', label:'Telefono Amico'}, crisis2:{num:'114', label:'Emergenza Infanzia'}},
+  'italy':{lang:'en', label:'IT', ambulance:'118', police:'113', fire:'115', general:'112', crisis1:{num:'02 2327 2327', label:'Telefono Amico'}, crisis2:{num:'114', label:'Child Emergency'}},
+  'usa':{lang:'en', label:'US', ambulance:'911', police:'911', fire:'911', general:'911', crisis1:{num:'988', label:'Suicide & Crisis Lifeline'}, crisis2:{num:'1-800-422-4453', label:'Childhelp Hotline'}},
+  'united states':{lang:'en', label:'US', ambulance:'911', police:'911', fire:'911', general:'911', crisis1:{num:'988', label:'Suicide & Crisis Lifeline'}, crisis2:{num:'1-800-422-4453', label:'Childhelp Hotline'}},
+  'vereinigte staaten':{lang:'en', label:'US', ambulance:'911', police:'911', fire:'911', general:'911', crisis1:{num:'988', label:'Suicide & Crisis Lifeline'}, crisis2:{num:'1-800-422-4453', label:'Childhelp Hotline'}},
+  'united kingdom':{lang:'en', label:'UK', ambulance:'999', police:'999', fire:'999', general:'112', crisis1:{num:'116 123', label:'Samaritans'}, crisis2:{num:'0800 1111', label:'Childline'}},
+  'uk':{lang:'en', label:'UK', ambulance:'999', police:'999', fire:'999', general:'112', crisis1:{num:'116 123', label:'Samaritans'}, crisis2:{num:'0800 1111', label:'Childline'}},
+  'grossbritannien':{lang:'en', label:'UK', ambulance:'999', police:'999', fire:'999', general:'112', crisis1:{num:'116 123', label:'Samaritans'}, crisis2:{num:'0800 1111', label:'Childline'}},
+  'kanada':{lang:'en', label:'CA', ambulance:'911', police:'911', fire:'911', general:'911', crisis1:{num:'988', label:'Suicide Crisis Helpline'}, crisis2:{num:'1-800-668-6868', label:'Kids Help Phone'}},
+  'canada':{lang:'en', label:'CA', ambulance:'911', police:'911', fire:'911', general:'911', crisis1:{num:'988', label:'Suicide Crisis Helpline'}, crisis2:{num:'1-800-668-6868', label:'Kids Help Phone'}},
+};
+const DEFAULT_COUNTRY = COUNTRY_DB['schweiz'];
+let appLang = 'de';
+let EMERGENCY = { ambulance:'144', police:'117', fire:'118', general:'112', crisis1:{num:'143',label:'Dargebotene Hand'}, crisis2:{num:'147',label:'Pro Juventute'}, countryLabel:'CH' };
+
+function resolveCountry(input){
+  if(!input) return DEFAULT_COUNTRY;
+  const key = input.trim().toLowerCase();
+  if(COUNTRY_DB[key]) return COUNTRY_DB[key];
+  // partial match fallback
+  const found = Object.keys(COUNTRY_DB).find(k=>k.includes(key)||key.includes(k));
+  return found ? COUNTRY_DB[found] : { lang:'de', label: input.slice(0,3).toUpperCase(), ambulance:'112', police:'112', fire:'112', general:'112', crisis1:{num:'112',label:'Notruf'}, crisis2:{num:'112',label:'Notruf'} };
+}
+
+const I18N = {
+  de:{
+    heroSub:'Tippen für Sofort-Alarm. Wähle unten deinen Bereich.',
+    tileMedTitle:'Medizinischer Notfall', tileMedTag:'Anleitungen &amp; CPR',
+    tileMentalTitle:'Psychische Krise', tileMentalTag:'Sicherheitsplan',
+    tileCyberTitle:'Cyber-Notfall', tileCyberTag:'Betrug &amp; Erpressung',
+    tileHelpTitle:'Hilfe für andere', tileHelpTag:'Wenn jemand Hilfe braucht',
+    medTitle:'Medizinischer Notfall', medSub:'Wähle die Situation aus',
+    ambulanceLabel:'Sanität', callBtn:'📞 Anrufen',
+    aedLabel:'Defibrillator in der Nähe finden', aedBtn:'📍 Suchen',
+    cprTitle:'CPR-Metronom', cprSub:'110 Schläge pro Minute für Herzdruckmassage', cprStart:'Starten', cprStop:'Stoppen', cprLabel:'Kompressionen',
+    sosTitle:'SOS', sosSub:'Halte den Button gedrückt, um Alarm auszulösen',
+    holdText:'3 Sek.<br>gedrückt halten', holdHint:'Sendet Standort &amp; Alarm an deine Vertrauenspersonen', silentAlarmBtn:'Stiller Alarm senden',
+    fakeCall:'Fake-Anruf', trustNet:'Vertrauensnetz', emergency:'Notruf',
+    disguise:'Tarnmodus', recAudio:'Audio aufnehmen', recVideo:'Video aufnehmen', recStop:'Stoppen ●',
+    guidedRecs:'Geführte Handlungsempfehlungen',
+    disguiseHint:'Anzeige 1,5 Sek. gedrückt halten, um Lifeline zu öffnen',
+    mentalTitle:'Psychische Krise', mentalSub:'Ruhe finden &amp; Unterstützung holen',
+    breatheTitle:'Atemübung — Box Breathing', breatheSub:'4 Sek. ein · 4 Sek. halten · 4 Sek. aus', breatheStart:'Übung starten', breatheStop:'Stoppen',
+    crisisHotlines:'Krisentelefone', safetyPlanTitle:'Mein Sicherheitsplan',
+    sp1:'Meine Warnzeichen (woran merke ich, dass es schwierig wird?)', sp2:'Was mir hilft, mich zu beruhigen', sp3:'Person, die ich kontaktieren kann', savePlan:'Plan speichern',
+    cyberTitle:'Cyber-Notfall', cyberSub:'Betrug, Phishing &amp; digitale Bedrohungen einschätzen',
+    walletTitle:'🎫 Notfallkarte fürs Portemonnaie', walletDesc:'Falls dein Handy geklaut wird, hast du diese Checkliste nicht mehr griffbereit — deshalb als kleine Karte zum Speichern/Ausdrucken, unabhängig vom Handy.', walletBtn:'Karte erstellen', walletDownload:'📥 Als Bild herunterladen',
+    msgTitle:'Nachrichtenanalyse', msgDesc:'Verdächtige Nachricht einfügen — Lifeline prüft auf typische Betrugsmerkmale.', msgPh:'Nachricht hier einfügen …', msgBtn:'Nachricht prüfen',
+    linkTitle:'Linkprüfung', linkDesc:'Prüft einen Link heuristisch auf typische Phishing-Merkmale.', linkBtn:'Link prüfen',
+    checklists:'Sicherheitschecklisten',
+    helpTitle:'Hilfe für andere', helpSub:'Wenn jemand in deiner Nähe Hilfe braucht',
+    accountTitle:'Mein Konto', accountSub:'Deine Angaben — bleiben nur auf diesem Gerät gespeichert',
+    personalTitle:'Persönliche Angaben', personalDesc:'Wird lokal auf deinem Handy gespeichert — nirgendwo hochgeladen.',
+    fName:'Name', fAge:'Alter', fPhone:'Telefonnummer', fEmail:'E-Mail', fLang:'Sprache', fCountry:'Land',
+    medInfoTitle:'Medizinische Angaben', medInfoOpt:'(optional)', medInfoDesc:'Hilfreich für Ersthelfer im Notfall.',
+    fBlood:'Blutgruppe', fAllergies:'Allergien', fMeds:'Medikamente', fConditions:'Erkrankungen / weitere Hinweise',
+    saveAccount:'Konto speichern', savedMsg:'✓ Gespeichert',
+    trustedNetwork:'Vertrauensnetzwerk', addPerson:'Person hinzufügen',
+    greeting:'Hallo',
+    alarmTitle:'Alarm wird ausgelöst …', alarmSub:'Tippe auf Abbrechen, wenn das ein Versehen war.',
+    alarmCancel:'Abbrechen', alarmDone:'Fertig',
+    alarmSentTitle:'Alarm gesendet', alarmSentSub:'Deine Vertrauenspersonen wurden informiert.',
+    alarmSentTag:'Alarm &amp; Standort gesendet', noContactsAlarm:'Noch keine Vertrauenspersonen hinterlegt.',
+    fakeCallName:'Mama', fakeCallType:'Mobil',
+    noContactMsg:'noch keine hinterlegt (unter ⚙)',
+    walletCreated:'Karte erstellt — Vorschau unten',
+    silentAlarmSent:'Stiller Alarm gesendet — ohne Ton oder Anzeige',
+    recStopLabel:'Stoppen ●', recAudioRunning:'Audioaufnahme läuft …', recVideoRunning:'Videoaufnahme läuft …',
+    micDenied:'Zugriff auf Mikrofon nicht möglich', camDenied:'Zugriff auf Kamera nicht möglich',
+    planSavedMsg:'Dein Sicherheitsplan wurde gespeichert.',
+    contactRequired:'Bitte Name und Telefonnummer angeben.',
+    noContactsYet:'Noch keine Personen hinzugefügt.<br>Füge unten deine erste Vertrauensperson hinzu.',
+    pinTitle:'App-Schutz', pinDescSetup:'Optional: Schütze Konto, Kontakte und Sicherheitsplan mit einem PIN. SOS, Notruf und alle Anleitungen bleiben immer ohne PIN erreichbar.',
+    pinNew:'Neuer PIN (mind. 4 Ziffern)', pinConfirm:'PIN bestätigen', pinActivate:'PIN aktivieren',
+    pinMismatch:'Die PINs stimmen nicht überein.', pinTooShort:'PIN muss mindestens 4 Zeichen haben.',
+    pinLockedTitle:'🔒 Gesperrt', pinLockedDesc:'Konto, Kontakte und Sicherheitsplan sind PIN-geschützt.',
+    pinEnter:'PIN eingeben', pinUnlock:'Entsperren', pinWrong:'Falscher PIN.',
+    pinUnlockedTitle:'🔓 Entsperrt', pinLockBtn:'Jetzt sperren', pinRemoveBtn:'PIN entfernen',
+    pinRemoveConfirm:'PIN wirklich entfernen? Deine Daten sind danach wieder unverschlüsselt lokal gespeichert.',
+    lockedContacts:'🔒 Mit PIN geschützt — im Konto entsperren'
+  },
+  en:{
+    heroSub:'Tap for instant alert. Choose your section below.',
+    tileMedTitle:'Medical Emergency', tileMedTag:'Guides &amp; CPR',
+    tileMentalTitle:'Mental Health Crisis', tileMentalTag:'Safety plan',
+    tileCyberTitle:'Cyber Emergency', tileCyberTag:'Fraud &amp; extortion',
+    tileHelpTitle:'Help Others', tileHelpTag:'When someone needs help',
+    medTitle:'Medical Emergency', medSub:'Choose the situation',
+    ambulanceLabel:'Ambulance', callBtn:'📞 Call',
+    aedLabel:'Find nearest defibrillator', aedBtn:'📍 Search',
+    cprTitle:'CPR Metronome', cprSub:'110 beats per minute for chest compressions', cprStart:'Start', cprStop:'Stop', cprLabel:'Compressions',
+    sosTitle:'SOS', sosSub:'Hold the button to trigger an alert',
+    holdText:'Hold for<br>3 sec', holdHint:'Sends location &amp; alert to your trusted contacts', silentAlarmBtn:'Send silent alert',
+    fakeCall:'Fake Call', trustNet:'Trusted Contacts', emergency:'Emergency',
+    disguise:'Disguise Mode', recAudio:'Record Audio', recVideo:'Record Video', recStop:'Stop ●',
+    guidedRecs:'Guided Recommendations',
+    disguiseHint:'Hold the display for 1.5 sec to open Lifeline',
+    mentalTitle:'Mental Health Crisis', mentalSub:'Find calm &amp; get support',
+    breatheTitle:'Breathing Exercise — Box Breathing', breatheSub:'4 sec in · 4 sec hold · 4 sec out', breatheStart:'Start exercise', breatheStop:'Stop',
+    crisisHotlines:'Crisis Hotlines', safetyPlanTitle:'My Safety Plan',
+    sp1:'My warning signs (how do I notice things getting hard?)', sp2:'What helps me calm down', sp3:'Person I can contact', savePlan:'Save plan',
+    cyberTitle:'Cyber Emergency', cyberSub:'Assess fraud, phishing &amp; digital threats',
+    walletTitle:'🎫 Wallet Emergency Card', walletDesc:"If your phone gets stolen you won't have this checklist anymore — so keep a small card to save/print, independent of your phone.", walletBtn:'Create card', walletDownload:'📥 Download as image',
+    msgTitle:'Message Analysis', msgDesc:'Paste a suspicious message — Lifeline checks it for common fraud patterns.', msgPh:'Paste message here …', msgBtn:'Check message',
+    linkTitle:'Link Check', linkDesc:'Heuristically checks a link for common phishing traits.', linkBtn:'Check link',
+    checklists:'Security Checklists',
+    helpTitle:'Help Others', helpSub:'When someone near you needs help',
+    accountTitle:'My Account', accountSub:'Your info — stored only on this device',
+    personalTitle:'Personal Info', personalDesc:"Stored locally on your phone — never uploaded anywhere.",
+    fName:'Name', fAge:'Age', fPhone:'Phone number', fEmail:'Email', fLang:'Language', fCountry:'Country',
+    medInfoTitle:'Medical Info', medInfoOpt:'(optional)', medInfoDesc:'Helpful for first responders in an emergency.',
+    fBlood:'Blood type', fAllergies:'Allergies', fMeds:'Medications', fConditions:'Conditions / other notes',
+    saveAccount:'Save account', savedMsg:'✓ Saved',
+    trustedNetwork:'Trusted Contacts', addPerson:'Add person',
+    greeting:'Hi',
+    alarmTitle:'Triggering alert …', alarmSub:'Tap Cancel if this was an accident.',
+    alarmCancel:'Cancel', alarmDone:'Done',
+    alarmSentTitle:'Alert sent', alarmSentSub:'Your trusted contacts have been notified.',
+    alarmSentTag:'Alert &amp; location sent', noContactsAlarm:'No trusted contacts added yet.',
+    fakeCallName:'Mom', fakeCallType:'Mobile',
+    noContactMsg:'none added yet (see ⚙)',
+    walletCreated:'Card created — preview below',
+    silentAlarmSent:'Silent alert sent — no sound or display',
+    recStopLabel:'Stop ●', recAudioRunning:'Recording audio …', recVideoRunning:'Recording video …',
+    micDenied:'Could not access microphone', camDenied:'Could not access camera',
+    planSavedMsg:'Your safety plan has been saved.',
+    contactRequired:'Please enter a name and phone number.',
+    noContactsYet:"No one added yet.<br>Add your first trusted contact below.",
+    pinTitle:'App Protection', pinDescSetup:"Optional: protect your account, contacts, and safety plan with a PIN. SOS, emergency calling, and all guides always stay reachable without a PIN.",
+    pinNew:'New PIN (min. 4 digits)', pinConfirm:'Confirm PIN', pinActivate:'Activate PIN',
+    pinMismatch:"PINs don't match.", pinTooShort:'PIN must be at least 4 characters.',
+    pinLockedTitle:'🔒 Locked', pinLockedDesc:'Account, contacts, and safety plan are PIN-protected.',
+    pinEnter:'Enter PIN', pinUnlock:'Unlock', pinWrong:'Wrong PIN.',
+    pinUnlockedTitle:'🔓 Unlocked', pinLockBtn:'Lock now', pinRemoveBtn:'Remove PIN',
+    pinRemoveConfirm:'Really remove the PIN? Your data will then be stored locally unencrypted again.',
+    lockedContacts:'🔒 PIN-protected — unlock in Account'
+  }
+};
+
+function applyTranslations(){
+  const dict = I18N[appLang];
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined) el.innerHTML = dict[key];
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+    const key = el.getAttribute('data-i18n-ph');
+    if(dict[key] !== undefined) el.placeholder = dict[key];
+  });
+}
+
+function applyCountry(countryStr){
+  const c = resolveCountry(countryStr);
+  EMERGENCY = { ambulance:c.ambulance, police:c.police, fire:c.fire, general:c.general, crisis1:c.crisis1, crisis2:c.crisis2, countryLabel:c.label };
+  appLang = c.lang || 'de';
+
+  // update live number displays
+  const setNum = (id, val)=>{ const el=document.getElementById(id); if(el) el.textContent = val; };
+  const setHref = (id, num)=>{ const el=document.getElementById(id); if(el) el.href = 'tel:'+num.replace(/\s/g,''); };
+  setNum('numAmbulance', EMERGENCY.ambulance); setHref('callAmbulance', EMERGENCY.ambulance);
+  setNum('numGeneral', EMERGENCY.general); setHref('callGeneral', EMERGENCY.general);
+  setNum('numCrisis1', EMERGENCY.crisis1.num); setHref('callCrisis1', EMERGENCY.crisis1.num);
+  setNum('numCrisis2', EMERGENCY.crisis2.num); setHref('callCrisis2', EMERGENCY.crisis2.num);
+  const l1 = document.getElementById('labelCrisis1'); if(l1) l1.textContent = EMERGENCY.crisis1.label;
+  const l2 = document.getElementById('labelCrisis2'); if(l2) l2.textContent = EMERGENCY.crisis2.label;
+
+  // switch guide content language
+  scenarios = appLang==='en' ? scenarios_en : scenarios_de;
+  dangerGuides = appLang==='en' ? dangerGuides_en : dangerGuides_de;
+  cyberGuides = appLang==='en' ? cyberGuides_en : cyberGuides_de;
+  helpGuides = appLang==='en' ? helpGuides_en : helpGuides_de;
+  buildScenarioList(); buildDangerList(); buildCyberList(); buildHelpList();
+
+  applyTranslations();
+  renderGreeting();
+  document.documentElement.lang = appLang;
+}
+
+/* ---------- navigation ---------- */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='screen-contacts'){ renderContacts(); loadAccount(); renderPinPanel(); }
+  if(id==='screen-mental'){ loadPlan(); }
+}
+
+/* ---------- medical scenarios ---------- */
+const scenarios_de = {
+  atmung: {
+    title:"Bewusstlose Person / keine Atmung",
+    steps:[
+      {t:"1 · Ansprechen &amp; prüfen", b:"Sprich die Person laut an und rüttle sanft an den Schultern. Keine Reaktion? Prüfe die Atmung: Kopf überstrecken, Mund öffnen, 10 Sekunden auf Atmung hören, fühlen, sehen.", w:"Bei fehlender oder nicht normaler Atmung sofort weiter zu Schritt 2."},
+      {t:"2 · Notruf {{AMBULANCE}}", b:"Rufe sofort {{AMBULANCE}} an oder lass jemanden anrufen. Aktiviere Lautsprecher, damit du während der Wiederbelebung weiter Anweisungen bekommst."},
+      {t:"3 · Herzdruckmassage beginnen", b:"30 Kompressionen in der Mitte des Brustkorbs, ca. 5–6 cm tief, Frequenz 100–120/Min. Nutze das CPR-Metronom unten für den Takt."},
+      {t:"4 · Beatmung (falls geschult)", b:"2 Beatmungen nach 30 Kompressionen. Falls du nicht geschult bist: mache ununterbrochen Kompressionen, das ist besser als nichts.", w:"Nicht aufhören, bis professionelle Hilfe eintrifft oder die Person reagiert."}
+    ]
+  },
+  herz: {
+    title:"Herzstillstand",
+    steps:[
+      {t:"1 · Sofort Notruf", b:"Wähle {{AMBULANCE}}. Herzstillstand ist ein absoluter Notfall — jede Minute ohne Reanimation senkt die Überlebenschance deutlich."},
+      {t:"2 · Herzdruckmassage", b:"Beginne sofort mit ununterbrochenen Kompressionen, 100–120/Min., 5–6 cm tief. Nutze das Metronom für den Rhythmus."},
+      {t:"3 · Defibrillator (AED) holen lassen", b:"Falls in der Nähe verfügbar, sofort holen (lassen) und nach Sprachanweisung des Geräts anwenden."},
+      {t:"4 · Weitermachen", b:"Kompressionen bis Rettungsdienst übernimmt. Wechsle dich mit anderen Helfenden ab, um die Qualität hochzuhalten."}
+    ]
+  },
+  blutung: {
+    title:"Starke Blutung",
+    steps:[
+      {t:"1 · Direkter Druck", b:"Drücke mit einem sauberen Tuch oder deiner Hand fest auf die Wunde. Nicht loslassen, auch wenn das Tuch durchblutet — weiteres Material darüberlegen."},
+      {t:"2 · Hochlagern", b:"Wenn möglich, die verletzte Stelle über Herzhöhe lagern, um die Blutung zu verlangsamen."},
+      {t:"3 · Notruf {{AMBULANCE}}", b:"Bei starker, nicht stillbarer Blutung sofort Rettungsdienst rufen."},
+      {t:"4 · Schockprävention", b:"Person warmhalten und flach lagern, Beine leicht erhöhen, bis Hilfe eintrifft.", w:"Bei Gegenständen in der Wunde: nicht entfernen, um die Blutung offen zu halten."}
+    ]
+  },
+  ersticken: {
+    title:"Erstickungsanfall",
+    steps:[
+      {t:"1 · Zum Husten auffordern", b:"Solange die Person noch husten oder sprechen kann, ermutige sie weiterzuhusten — das ist der effektivste Weg, den Fremdkörper zu lösen."},
+      {t:"2 · Rückenschläge", b:"Kann sie nicht mehr husten/atmen: 5 kräftige Schläge zwischen die Schulterblätter, Oberkörper nach vorne gebeugt."},
+      {t:"3 · Heimlich-Handgriff", b:"Falls das nicht hilft: von hinten umfassen, Faust oberhalb des Bauchnabels, mit der anderen Hand ruckartig nach innen/oben drücken. Bis zu 5 Mal wiederholen."},
+      {t:"4 · Notruf, falls nötig", b:"Wenn der Fremdkörper nicht gelöst wird oder die Person bewusstlos wird: sofort {{AMBULANCE}} anrufen und mit Wiederbelebung beginnen."}
+    ]
+  },
+  krampf: {
+    title:"Krampfanfall",
+    steps:[
+      {t:"1 · Umgebung sichern", b:"Entferne gefährliche Gegenstände in der Nähe. Lege etwas Weiches unter den Kopf."},
+      {t:"2 · Nicht festhalten", b:"Halte die Person nicht fest und stecke nichts in den Mund. Lass den Anfall ablaufen."},
+      {t:"3 · Zeit stoppen", b:"Miss die Dauer des Anfalls. Dauert er länger als 5 Minuten, rufe {{AMBULANCE}}."},
+      {t:"4 · Stabile Seitenlage", b:"Nach dem Anfall die Person in die stabile Seitenlage bringen und bei ihr bleiben, bis sie wieder klar ansprechbar ist."}
+    ]
+  },
+  allergie: {
+    title:"Allergische Reaktion",
+    steps:[
+      {t:"1 · Auslöser stoppen", b:"Kontakt zum Auslöser sofort beenden (z. B. Insektenstachel entfernen, Nahrung stoppen)."},
+      {t:"2 · Notfallmedikament", b:"Falls die Person einen Adrenalin-Pen (Epipen) hat, hilf ihr, diesen wie verordnet anzuwenden."},
+      {t:"3 · Notruf bei starker Reaktion", b:"Bei Atemnot, Schwellung im Gesicht/Hals, Kreislaufproblemen sofort {{AMBULANCE}} anrufen — das kann ein anaphylaktischer Schock sein.", w:"Anaphylaxie ist lebensbedrohlich — im Zweifel immer den Notruf wählen."},
+      {t:"4 · Position &amp; Beobachtung", b:"Bei Atemnot aufrecht sitzen lassen, bei Kreislaufproblemen flach mit erhöhten Beinen. Bis Hilfe eintrifft nicht allein lassen."}
+    ]
+  }
+};
+
+const scenarios_en = {
+  atmung: {
+    title:"Unconscious person / not breathing",
+    steps:[
+      {t:"1 · Check &amp; respond", b:"Speak to the person loudly and gently shake their shoulders. No response? Check breathing: tilt the head back, open the mouth, listen/feel/look for breathing for 10 seconds.", w:"If breathing is absent or not normal, move to step 2 immediately."},
+      {t:"2 · Call {{AMBULANCE}}", b:"Call {{AMBULANCE}} immediately or have someone else call. Turn on speakerphone so you can keep receiving instructions during resuscitation."},
+      {t:"3 · Start chest compressions", b:"30 compressions in the center of the chest, about 5–6 cm deep, rate 100–120/min. Use the CPR metronome below to keep the beat."},
+      {t:"4 · Rescue breaths (if trained)", b:"2 rescue breaths after every 30 compressions. If untrained: do continuous compressions only — that's better than nothing.", w:"Don't stop until professional help arrives or the person responds."}
+    ]
+  },
+  herz: {
+    title:"Cardiac arrest",
+    steps:[
+      {t:"1 · Call for help immediately", b:"Dial {{AMBULANCE}}. Cardiac arrest is an absolute emergency — every minute without resuscitation significantly lowers survival chances."},
+      {t:"2 · Chest compressions", b:"Start continuous compressions immediately, 100–120/min, 5–6 cm deep. Use the metronome to keep the rhythm."},
+      {t:"3 · Get a defibrillator (AED)", b:"If one is nearby, get it right away and follow the device's voice instructions."},
+      {t:"4 · Keep going", b:"Continue compressions until emergency services take over. Switch with other helpers to maintain quality."}
+    ]
+  },
+  blutung: {
+    title:"Severe bleeding",
+    steps:[
+      {t:"1 · Apply direct pressure", b:"Press firmly on the wound with a clean cloth or your hand. Don't let go, even if the cloth soaks through — add more material on top."},
+      {t:"2 · Elevate", b:"If possible, raise the injured area above heart level to slow the bleeding."},
+      {t:"3 · Call {{AMBULANCE}}", b:"For severe, uncontrolled bleeding, call emergency medical services immediately."},
+      {t:"4 · Prevent shock", b:"Keep the person warm and lying flat, legs slightly raised, until help arrives.", w:"If there's an object embedded in the wound: don't remove it — that helps keep the bleeding contained."}
+    ]
+  },
+  ersticken: {
+    title:"Choking",
+    steps:[
+      {t:"1 · Encourage coughing", b:"As long as the person can still cough or speak, encourage them to keep coughing — that's the most effective way to clear the obstruction."},
+      {t:"2 · Back blows", b:"If they can no longer cough/breathe: 5 firm blows between the shoulder blades, upper body bent forward."},
+      {t:"3 · Abdominal thrusts (Heimlich)", b:"If that doesn't help: stand behind them, fist above the navel, other hand pulling sharply inward/upward. Repeat up to 5 times."},
+      {t:"4 · Call for help if needed", b:"If the obstruction doesn't clear or the person becomes unconscious: call {{AMBULANCE}} immediately and start resuscitation."}
+    ]
+  },
+  krampf: {
+    title:"Seizure",
+    steps:[
+      {t:"1 · Clear the area", b:"Remove dangerous objects nearby. Put something soft under their head."},
+      {t:"2 · Don't restrain", b:"Don't hold the person down and don't put anything in their mouth. Let the seizure run its course."},
+      {t:"3 · Time it", b:"Time the duration of the seizure. If it lasts longer than 5 minutes, call {{AMBULANCE}}."},
+      {t:"4 · Recovery position", b:"After the seizure, place the person in the recovery position and stay with them until they're clearly responsive again."}
+    ]
+  },
+  allergie: {
+    title:"Allergic reaction",
+    steps:[
+      {t:"1 · Stop the trigger", b:"End contact with the trigger right away (e.g. remove an insect stinger, stop eating the food)."},
+      {t:"2 · Emergency medication", b:"If the person has an epinephrine auto-injector (EpiPen), help them use it as prescribed."},
+      {t:"3 · Call for severe reactions", b:"For difficulty breathing, swelling of face/throat, or circulation problems, call {{AMBULANCE}} immediately — this can be anaphylactic shock.", w:"Anaphylaxis is life-threatening — when in doubt, always call emergency services."},
+      {t:"4 · Position &amp; monitor", b:"If breathing is difficult, keep them sitting upright; for circulation problems, lay flat with legs raised. Don't leave them alone until help arrives."}
+    ]
+  }
+};
+
+let scenarios = scenarios_de;
+function buildScenarioList(){
+  const scenarioList = document.getElementById('scenario-list');
+  scenarioList.innerHTML = '';
+  const stepsWord = appLang==='en' ? 'steps' : 'Schritte';
+  Object.entries(scenarios).forEach(([key,s])=>{
+    const div = document.createElement('div');
+    div.className='list-item';
+    div.onclick=()=>openScenario(key);
+    div.innerHTML = `<div><div class="li-title">${s.title}</div><div class="li-sub">${s.steps.length} ${stepsWord}</div></div><div class="arrow">→</div>`;
+    scenarioList.appendChild(div);
+  });
+}
+buildScenarioList();
+
+let curSteps=[], curIndex=0, stepReturnScreen='screen-medical', curSosNumber=EMERGENCY.ambulance;
+function openScenario(key){
+  const s = scenarios[key];
+  curSteps = s.steps; curIndex = 0; stepReturnScreen='screen-medical'; curSosNumber=EMERGENCY.ambulance;
+  document.getElementById('scenarioTitle').textContent = s.title;
+  renderStep();
+  showScreen('screen-scenario');
+}
+function openDangerGuide(key){
+  const s = dangerGuides[key];
+  curSteps = s.steps; curIndex = 0; stepReturnScreen='screen-danger'; curSosNumber=EMERGENCY.general;
+  document.getElementById('scenarioTitle').textContent = s.title;
+  renderStep();
+  showScreen('screen-scenario');
+}
+function fillNumbers(str){
+  return str.replace(/\{\{AMBULANCE\}\}/g, EMERGENCY.ambulance)
+            .replace(/\{\{POLICE\}\}/g, EMERGENCY.police)
+            .replace(/\{\{FIRE\}\}/g, EMERGENCY.fire)
+            .replace(/\{\{GENERAL\}\}/g, EMERGENCY.general)
+            .replace(/\{\{CRISIS1\}\}/g, EMERGENCY.crisis1.num)
+            .replace(/\{\{CRISIS2\}\}/g, EMERGENCY.crisis2.num);
+}
+function renderStep(){
+  const s = curSteps[curIndex];
+  const panel = document.getElementById('stepPanel');
+  const stepLabel = appLang==='en' ? `Step ${curIndex+1} of ${curSteps.length}` : `Schritt ${curIndex+1} von ${curSteps.length}`;
+  const backLabel = appLang==='en' ? 'Back' : 'Zurück';
+  const nextLabel = appLang==='en' ? 'Next' : 'Weiter';
+  const callLabel = appLang==='en' ? 'Call' : 'Notruf';
+  const readLabel = appLang==='en' ? '🔊 Read step aloud' : '🔊 Schritt vorlesen';
+  const subEl = document.getElementById('scenarioSub');
+  if(subEl) subEl.textContent = appLang==='en' ? 'Step-by-step guide' : 'Schritt-für-Schritt-Anleitung';
+  panel.innerHTML = `
+    <div class="step-count">${stepLabel}</div>
+    <h3>${fillNumbers(s.t)}</h3>
+    <p>${fillNumbers(s.b)}</p>
+    ${s.w?`<div class="warn-box">⚠ ${fillNumbers(s.w)}</div>`:""}
+    <button class="btn btn-ghost" style="margin-top:14px; width:100%;" onclick="speakStep()">${readLabel}</button>
+    <div class="step-nav">
+      ${curIndex>0?`<button class="btn btn-secondary" onclick="prevStep()">${backLabel}</button>`:''}
+      ${curIndex<curSteps.length-1?`<button class="btn btn-primary" onclick="nextStep()">${nextLabel}</button>`:`<a class="btn btn-sos" href="tel:${curSosNumber}">${callLabel} ${curSosNumber}</a>`}
+    </div>
+  `;
+}
+function speakStep(){
+  if(!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const s = curSteps[curIndex];
+  const u = new SpeechSynthesisUtterance(fillNumbers(s.t.replace(/^\d+\s*·\s*/,''))+'. '+fillNumbers(s.b));
+  u.lang = appLang==='en' ? 'en-US' : 'de-DE';
+  u.rate=0.95;
+  window.speechSynthesis.speak(u);
+}
+function nextStep(){ if(curIndex<curSteps.length-1){curIndex++; renderStep();} }
+function prevStep(){ if(curIndex>0){curIndex--; renderStep();} }
+
+/* ---------- danger guides ---------- */
+const dangerGuides_de = {
+  verfolgt: {
+    title:"Ich werde verfolgt",
+    steps:[
+      {t:"1 · Ruhig bleiben &amp; Richtung wechseln", b:"Wechsle bewusst die Straßenseite oder die Richtung. Wenn die Person mitgeht, ist das ein klares Zeichen — verlasse dich auf dein Gefühl."},
+      {t:"2 · Zu belebtem Ort gehen", b:"Steuere einen belebten, hell beleuchteten Ort an: Geschäft, Restaurant, Tankstelle. Bleib nicht in ruhigen Nebenstraßen."},
+      {t:"3 · Vertrauensperson anrufen", b:"Ruf jemanden an oder simuliere ein Telefonat laut hörbar — das schreckt oft ab. Nutze bei Bedarf den Fake-Anruf."},
+      {t:"4 · Alarm auslösen", b:"Wenn sich die Situation zuspitzt: löse den SOS-Alarm aus, um Standort &amp; Alarm an deine Vertrauenspersonen zu senden.", w:"Bei akuter Gefahr sofort die Polizei rufen."}
+    ]
+  },
+  bedroht: {
+    title:"Jemand bedroht mich",
+    steps:[
+      {t:"1 · Abstand schaffen", b:"Entferne dich, sobald es sicher möglich ist. Eskaliere die Situation nicht durch Widerspruch, wenn direkte Gefahr besteht."},
+      {t:"2 · Beweise sichern", b:"Speichere Nachrichten, mache wenn sicher möglich Screenshots oder eine Audioaufnahme der Bedrohung."},
+      {t:"3 · Vertrauensperson informieren", b:"Erzähl sofort jemandem, dem du vertraust, was passiert ist — auch wenn es dir unangenehm ist."},
+      {t:"4 · Polizei einschalten", b:"Bei ernstzunehmender Bedrohung: Anzeige erstatten. Nutze den Notruf, wenn akute Gefahr besteht."}
+    ]
+  },
+  haeusliche_gewalt: {
+    title:"Häusliche Gewalt",
+    steps:[
+      {t:"1 · Sicherheit zuerst", b:"Wenn möglich, entferne dich aus der akuten Situation an einen sicheren Ort (Nachbarn, Freunde, öffentlicher Ort)."},
+      {t:"2 · Notruf bei akuter Gefahr", b:"Bei unmittelbarer Gefahr sofort die Polizei rufen ({{GENERAL}} oder {{POLICE}})."},
+      {t:"3 · Fachstelle kontaktieren", b:"Die Opferhilfe und Beratungsstellen für häusliche Gewalt bieten vertrauliche, kostenlose Unterstützung — auch wenn (noch) keine Anzeige erfolgen soll."},
+      {t:"4 · Sicherheitsplan vorbereiten", b:"Überlege dir im Voraus einen Fluchtweg, wichtige Dokumente und einen sicheren Ort, falls sich die Situation wiederholt."}
+    ]
+  },
+  stalking: {
+    title:"Stalking",
+    steps:[
+      {t:"1 · Kontakt konsequent abbrechen", b:"Keine Reaktion auf Nachrichten oder Annäherungen — auch keine ablehnende, das kann Stalking verstärken."},
+      {t:"2 · Alles dokumentieren", b:"Führe ein Protokoll: Datum, Uhrzeit, Vorfall, Beweise (Nachrichten, Fotos). Das ist wichtig für eine spätere Anzeige."},
+      {t:"3 · Umfeld informieren", b:"Informiere Familie, Freunde, ggf. Schule/Arbeitsplatz, damit sie im Ernstfall reagieren können."},
+      {t:"4 · Anzeige erstatten", b:"Wende dich an die Polizei — Stalking ist strafbar. Opferhilfestellen unterstützen dich dabei."}
+    ]
+  },
+  unsicherer_ort: {
+    title:"Unsicherer Ort",
+    steps:[
+      {t:"1 · Standort einschätzen", b:"Verlasse dunkle, leere oder unübersichtliche Orte zügig, ohne in Panik zu geraten."},
+      {t:"2 · Sichtbaren, belebten Weg wählen", b:"Wähle beleuchtete Hauptwege, auch wenn sie länger sind."},
+      {t:"3 · Standort teilen", b:"Teile deinen Live-Standort mit einer Vertrauensperson, solange du unterwegs bist."},
+      {t:"4 · SOS bereithalten", b:"Halte dein Handy griffbereit, damit du den SOS-Alarm im Zweifel sofort auslösen kannst."}
+    ]
+  },
+  uebergriff: {
+    title:"Übergriff",
+    steps:[
+      {t:"1 · Eigene Sicherheit zuerst", b:"Bring dich, sobald möglich, aus der unmittelbaren Situation heraus."},
+      {t:"2 · Notruf", b:"Rufe die Polizei ({{GENERAL}}/{{POLICE}}) oder bei Verletzungen zusätzlich den Rettungsdienst ({{AMBULANCE}})."},
+      {t:"3 · Medizinische Versorgung", b:"Lass dich ärztlich untersuchen — auch ohne sichtbare Verletzungen, und auch wenn du (noch) keine Anzeige machen willst."},
+      {t:"4 · Unterstützung holen", b:"Opferhilfestellen begleiten dich kostenlos und vertraulich durch die nächsten Schritte."}
+    ]
+  }
+};
+
+const dangerGuides_en = {
+  verfolgt: {
+    title:"I'm being followed",
+    steps:[
+      {t:"1 · Stay calm &amp; change direction", b:"Deliberately cross the street or change direction. If the person follows, that's a clear sign — trust your instinct."},
+      {t:"2 · Head to a busy place", b:"Go to a busy, well-lit place: a shop, restaurant, gas station. Avoid quiet side streets."},
+      {t:"3 · Call a trusted person", b:"Call someone, or fake a phone call out loud — that often deters. Use the fake call feature if needed."},
+      {t:"4 · Trigger an alert", b:"If the situation escalates: trigger the SOS alert to send your location &amp; an alert to your trusted contacts.", w:"For immediate danger, call the police right away."}
+    ]
+  },
+  bedroht: {
+    title:"Someone is threatening me",
+    steps:[
+      {t:"1 · Create distance", b:"Remove yourself as soon as it's safely possible. Don't escalate the situation through confrontation if there's direct danger."},
+      {t:"2 · Preserve evidence", b:"Save messages, and if it's safe, take screenshots or an audio recording of the threat."},
+      {t:"3 · Tell someone you trust", b:"Tell someone you trust what happened right away — even if it feels uncomfortable."},
+      {t:"4 · Involve the police", b:"For a serious threat, file a report. Call emergency services if there's immediate danger."}
+    ]
+  },
+  haeusliche_gewalt: {
+    title:"Domestic violence",
+    steps:[
+      {t:"1 · Safety first", b:"If possible, get out of the acute situation to a safe place (neighbors, friends, a public place)."},
+      {t:"2 · Call for immediate danger", b:"For immediate danger, call the police right away ({{GENERAL}} or {{POLICE}})."},
+      {t:"3 · Contact a support service", b:"Victim support and domestic violence hotlines offer confidential, free support — even if you don't (yet) want to file a report."},
+      {t:"4 · Prepare a safety plan", b:"Think ahead about an escape route, important documents, and a safe place in case it happens again."}
+    ]
+  },
+  stalking: {
+    title:"Stalking",
+    steps:[
+      {t:"1 · Cut off contact completely", b:"Don't respond to messages or approaches — not even to reject them, that can reinforce stalking behavior."},
+      {t:"2 · Document everything", b:"Keep a log: date, time, incident, evidence (messages, photos). This matters for a later report."},
+      {t:"3 · Tell people around you", b:"Inform family, friends, and school/work if relevant, so they can react if needed."},
+      {t:"4 · File a report", b:"Contact the police — stalking is a crime. Victim support services can help you through it."}
+    ]
+  },
+  unsicherer_ort: {
+    title:"Unsafe location",
+    steps:[
+      {t:"1 · Assess the location", b:"Leave dark, empty, or confusing places quickly, without panicking."},
+      {t:"2 · Choose a visible, busy route", b:"Take well-lit main streets, even if they're longer."},
+      {t:"3 · Share your location", b:"Share your live location with a trusted person while you're on the move."},
+      {t:"4 · Keep SOS ready", b:"Keep your phone within reach so you can trigger the SOS alert instantly if needed."}
+    ]
+  },
+  uebergriff: {
+    title:"Assault",
+    steps:[
+      {t:"1 · Your safety first", b:"Get yourself out of the immediate situation as soon as possible."},
+      {t:"2 · Call for help", b:"Call the police ({{GENERAL}}/{{POLICE}}) or, for injuries, also emergency medical services ({{AMBULANCE}})."},
+      {t:"3 · Get medical care", b:"Get checked by a doctor — even without visible injuries, and even if you don't want to file a report (yet)."},
+      {t:"4 · Get support", b:"Victim support services can guide you through the next steps, free and confidential."}
+    ]
+  }
+};
+
+let dangerGuides = dangerGuides_de;
+function buildDangerList(){
+  const guideList = document.getElementById('danger-guide-list');
+  guideList.innerHTML = '';
+  const stepsWord = appLang==='en' ? 'steps' : 'Schritte';
+  Object.entries(dangerGuides).forEach(([key,s])=>{
+    const div = document.createElement('div');
+    div.className='list-item';
+    div.onclick=()=>openDangerGuide(key);
+    div.innerHTML = `<div><div class="li-title">${s.title}</div><div class="li-sub">${s.steps.length} ${stepsWord}</div></div><div class="arrow">→</div>`;
+    guideList.appendChild(div);
+  });
+}
+buildDangerList();
+
+/* ---------- cyber guides ---------- */
+const cyberGuides_de = {
+  handy_gestohlen: {
+    title:"Handy wurde gestohlen / verloren",
+    steps:[
+      {t:"1 · Sofort orten &amp; sperren", b:"Nutze auf einem anderen Gerät \"Wo ist?\" (iPhone) oder \"Mein Gerät finden\" (Android). Aktiviere den Verloren-Modus / sperre das Gerät aus der Ferne sofort."},
+      {t:"2 · SIM-Karte sperren lassen", b:"Ruf deinen Mobilfunkanbieter an und lass die SIM-Karte sperren — sonst kann jemand auf deine Kosten telefonieren oder SMS-Codes abfangen."},
+      {t:"3 · Wichtige Konten absichern", b:"Ändere sofort die Passwörter von E-Mail, Banking-Apps und Social Media von einem anderen Gerät aus — dein Handy ist oft der Schlüssel für Zwei-Faktor-Codes."},
+      {t:"4 · Fernlöschen, falls nötig", b:"Wenn eine Wiederbeschaffung unwahrscheinlich ist, lösche das Gerät aus der Ferne, um deine Daten zu schützen (Fotos, Nachrichten, gespeicherte Passwörter)."},
+      {t:"5 · Anzeige erstatten", b:"Erstatte bei der Polizei Anzeige — für Versicherung, Anbieter-Sperrung und falls das Gerät für Straftaten missbraucht wird, brauchst du diese Bestätigung.", w:"IMEI-Nummer bereithalten (auf der Verpackung oder unter Einstellungen > Info) — damit kann der Anbieter das Gerät netzweit sperren."}
+    ]
+  },
+  konto_gehackt: {
+    title:"Konto wurde gehackt",
+    steps:[
+      {t:"1 · Passwort sofort ändern", b:"Ändere das Passwort über ein anderes, sicheres Gerät. Nutze ein neues, einzigartiges Passwort — nicht wiederverwenden."},
+      {t:"2 · Andere Konten prüfen", b:"Falls du dasselbe Passwort woanders nutzt, ändere es dort ebenfalls. Aktiviere überall die Zwei-Faktor-Authentifizierung."},
+      {t:"3 · Anmeldungen &amp; Geräte kontrollieren", b:"Prüfe in den Kontoeinstellungen aktive Sitzungen/Geräte und melde unbekannte Geräte ab."},
+      {t:"4 · Support kontaktieren &amp; melden", b:"Melde den Vorfall dem Anbieter-Support sowie bei Bedarf der Meldeplattform des Bundes (NCSC.admin.ch)."}
+    ]
+  },
+  phishing: {
+    title:"Phishing-Nachricht erhalten",
+    steps:[
+      {t:"1 · Nicht klicken, nicht antworten", b:"Öffne keine Links oder Anhänge. Antworte nicht — das bestätigt nur, dass deine Adresse aktiv ist."},
+      {t:"2 · Absender prüfen", b:"Schau dir die tatsächliche Absenderadresse genau an, nicht nur den angezeigten Namen."},
+      {t:"3 · Nachricht analysieren lassen", b:"Nutze die Nachrichtenanalyse oben, um typische Warnsignale zu erkennen."},
+      {t:"4 · Melden &amp; löschen", b:"Melde die Nachricht als Phishing (meist über eine Funktion im Mail-/Messenger-Programm) und lösche sie danach."}
+    ]
+  },
+  sextortion: {
+    title:"Sextortion / Erpressung",
+    steps:[
+      {t:"1 · Nicht zahlen, nicht weiter kommunizieren", b:"Zahle nichts — das führt fast immer zu weiteren Forderungen. Antworte nicht auf die Erpressung."},
+      {t:"2 · Beweise sichern", b:"Screenshots von Chatverlauf, Profil und Forderung machen, bevor du etwas löschst oder blockierst."},
+      {t:"3 · Blockieren", b:"Blockiere die Person danach auf allen Plattformen, über die ihr in Kontakt steht."},
+      {t:"4 · Hilfe holen", b:"Sprich mit einer Vertrauensperson und melde den Vorfall der Polizei — das ist eine Straftat, du bist nicht schuld daran.", w:"Du musst das nicht allein durchstehen — Melden schützt dich und andere Betroffene."}
+    ]
+  },
+  fake_shop: {
+    title:"Fake-Shop erkannt / genutzt",
+    steps:[
+      {t:"1 · Zahlung prüfen", b:"Hast du per Kreditkarte oder PayPal bezahlt, kontaktiere sofort deine Bank bzw. PayPal für eine Rückbuchung (Chargeback)."},
+      {t:"2 · Kommunikation stoppen", b:"Sende dem Shop keine weiteren Daten oder Zahlungen, auch nicht bei angeblichen Zoll- oder Zusatzgebühren."},
+      {t:"3 · Beweise sichern", b:"Screenshots der Website, Bestellbestätigung und Zahlungsbeleg aufbewahren."},
+      {t:"4 · Anzeige erstatten", b:"Melde den Fake-Shop der Polizei und ggf. bei einer Verbraucherschutzstelle, damit andere gewarnt werden."}
+    ]
+  },
+  identitaetsdiebstahl: {
+    title:"Identitätsdiebstahl",
+    steps:[
+      {t:"1 · Betroffene Konten sichern", b:"Passwörter aller betroffenen Konten sofort ändern, Zwei-Faktor-Authentifizierung aktivieren."},
+      {t:"2 · Finanzinstitute informieren", b:"Bank und Kreditkartenanbieter kontaktieren, falls Finanzdaten betroffen sein könnten."},
+      {t:"3 · Anzeige erstatten", b:"Erstatte Anzeige bei der Polizei — das ist oft Voraussetzung, um Schäden bei Anbietern zu klären."},
+      {t:"4 · Beobachten", b:"Kontoauszüge und Online-Profile in den nächsten Wochen genau beobachten, um Folgeschäden früh zu erkennen."}
+    ]
+  }
+};
+
+const cyberGuides_en = {
+  handy_gestohlen: {
+    title:"Phone stolen / lost",
+    steps:[
+      {t:"1 · Locate &amp; lock immediately", b:"Use \"Find My\" (iPhone) or \"Find My Device\" (Android) on another device. Activate lost mode / lock the device remotely right away."},
+      {t:"2 · Get the SIM blocked", b:"Call your mobile carrier and have the SIM card blocked — otherwise someone could make calls on your bill or intercept SMS codes."},
+      {t:"3 · Secure important accounts", b:"Change your email, banking, and social media passwords right away from another device — your phone is often the key to two-factor codes."},
+      {t:"4 · Remote wipe if needed", b:"If recovery seems unlikely, wipe the device remotely to protect your data (photos, messages, saved passwords)."},
+      {t:"5 · File a police report", b:"File a report with the police — you'll need this confirmation for insurance, carrier blocking, and in case the device is misused for crimes.", w:"Keep your IMEI number handy (on the box or under Settings > About) — your carrier can block the device network-wide with it."}
+    ]
+  },
+  konto_gehackt: {
+    title:"Account was hacked",
+    steps:[
+      {t:"1 · Change your password immediately", b:"Change the password from another, secure device. Use a new, unique password — don't reuse old ones."},
+      {t:"2 · Check other accounts", b:"If you reused that password elsewhere, change it there too. Turn on two-factor authentication everywhere."},
+      {t:"3 · Check active sessions &amp; devices", b:"In your account settings, check active sessions/devices and sign out anything unfamiliar."},
+      {t:"4 · Contact support &amp; report", b:"Report the incident to the provider's support team and, if relevant, your national cybersecurity reporting platform."}
+    ]
+  },
+  phishing: {
+    title:"Received a phishing message",
+    steps:[
+      {t:"1 · Don't click, don't reply", b:"Don't open any links or attachments. Don't reply — that only confirms your address is active."},
+      {t:"2 · Check the sender", b:"Look closely at the actual sender address, not just the displayed name."},
+      {t:"3 · Run the message analysis", b:"Use the message analysis tool above to catch common warning signs."},
+      {t:"4 · Report &amp; delete", b:"Report the message as phishing (usually a feature in your mail/messenger app) and then delete it."}
+    ]
+  },
+  sextortion: {
+    title:"Sextortion / extortion",
+    steps:[
+      {t:"1 · Don't pay, don't engage further", b:"Don't pay anything — it almost always leads to more demands. Don't respond to the extortion."},
+      {t:"2 · Preserve evidence", b:"Take screenshots of the chat history, profile, and demand before deleting or blocking anything."},
+      {t:"3 · Block", b:"Block the person on every platform you're in contact through."},
+      {t:"4 · Get help", b:"Talk to someone you trust and report it to the police — this is a crime, and it's not your fault.", w:"You don't have to go through this alone — reporting protects you and other victims."}
+    ]
+  },
+  fake_shop: {
+    title:"Found / used a fake shop",
+    steps:[
+      {t:"1 · Check the payment", b:"If you paid by credit card or PayPal, contact your bank or PayPal immediately for a chargeback."},
+      {t:"2 · Stop communicating", b:"Don't send the shop any more data or payments, even for supposed customs or extra fees."},
+      {t:"3 · Preserve evidence", b:"Keep screenshots of the website, order confirmation, and payment receipt."},
+      {t:"4 · File a report", b:"Report the fake shop to the police and, if relevant, a consumer protection agency so others are warned."}
+    ]
+  },
+  identitaetsdiebstahl: {
+    title:"Identity theft",
+    steps:[
+      {t:"1 · Secure affected accounts", b:"Change the passwords of all affected accounts immediately, turn on two-factor authentication."},
+      {t:"2 · Inform financial institutions", b:"Contact your bank and credit card provider if financial data may be affected."},
+      {t:"3 · File a report", b:"File a report with the police — it's often required to resolve damages with providers."},
+      {t:"4 · Monitor", b:"Watch your statements and online profiles closely over the coming weeks to catch follow-up damage early."}
+    ]
+  }
+};
+
+let cyberGuides = cyberGuides_de;
+function buildCyberList(){
+  const cyberList = document.getElementById('cyber-guide-list');
+  cyberList.innerHTML = '';
+  const stepsWord = appLang==='en' ? 'steps' : 'Schritte';
+  Object.entries(cyberGuides).forEach(([key,s])=>{
+    const div = document.createElement('div');
+    div.className='list-item';
+    div.onclick=()=>openCyberGuide(key);
+    div.innerHTML = `<div><div class="li-title">${s.title}</div><div class="li-sub">${s.steps.length} ${stepsWord}</div></div><div class="arrow">→</div>`;
+    cyberList.appendChild(div);
+  });
+}
+buildCyberList();
+function openCyberGuide(key){
+  const s = cyberGuides[key];
+  curSteps = s.steps; curIndex = 0; stepReturnScreen='screen-cyber'; curSosNumber=EMERGENCY.general;
+  document.getElementById('scenarioTitle').textContent = s.title;
+  renderStep();
+  showScreen('screen-scenario');
+}
+
+/* ---------- help others guides ---------- */
+const helpGuides_de = {
+  bewusstlos: {
+    title:"Person ist bewusstlos",
+    steps:[
+      {t:"1 · Ansprechen &amp; Notruf", b:"Sprich die Person laut an, rüttle an den Schultern. Keine Reaktion: sofort {{AMBULANCE}} anrufen."},
+      {t:"2 · Atmung prüfen", b:"Kopf überstrecken, 10 Sek. auf Atmung hören/fühlen/sehen. Keine normale Atmung → Wiederbelebung beginnen (siehe Medizinischer Notfall)."},
+      {t:"3 · Bei dir bleiben", b:"Verlasse die Person nicht, bis Hilfe eintrifft — auch wenn du dich unsicher fühlst."}
+    ]
+  },
+  panik: {
+    title:"Person in Panik",
+    steps:[
+      {t:"1 · Ruhig bleiben", b:"Sprich langsam und ruhig. Deine eigene Ruhe wirkt beruhigend auf die Person."},
+      {t:"2 · Nicht bewerten", b:"Sag nicht \"beruhig dich\" oder \"das ist nicht schlimm\" — das verstärkt oft die Panik. Bestätige stattdessen, dass du da bist."},
+      {t:"3 · Atmung anleiten", b:"Atme sichtbar langsam mit ihr/ihm mit — Lifeline hat dafür eine Atemübung (Bereich Psychische Krise)."},
+      {t:"4 · Dranbleiben", b:"Bleib bei der Person, bis sich die Panik legt oder professionelle Hilfe da ist."}
+    ]
+  },
+  suizidgedanken: {
+    title:"Person äussert Suizidgedanken",
+    steps:[
+      {t:"1 · Ernst nehmen &amp; zuhören", b:"Nimm jede Äusserung ernst. Höre ruhig zu, ohne zu urteilen oder das Thema zu wechseln."},
+      {t:"2 · Direkt fragen", b:"Frag ruhig und direkt, ob die Person daran denkt, sich das Leben zu nehmen. Das schadet nicht — im Gegenteil, es zeigt, dass du zuhörst."},
+      {t:"3 · Nicht allein lassen", b:"Bleib bei der Person oder sorg dafür, dass jemand anderes bei ihr bleibt, bis Hilfe organisiert ist."},
+      {t:"4 · Professionelle Hilfe holen", b:"Kontaktiere gemeinsam die Dargebotene Hand ({{CRISIS1}}) oder Pro Juventute ({{CRISIS2}}). Bei akuter Gefahr: Notruf {{AMBULANCE}}.", w:"Du trägst nicht die Verantwortung, das allein zu lösen — professionelle Hilfe ist wichtig."}
+    ]
+  },
+  bedroht_freund: {
+    title:"Freund wird bedroht",
+    steps:[
+      {t:"1 · Zuhören &amp; glauben", b:"Nimm die Schilderung ernst, auch wenn sie dir übertrieben vorkommt."},
+      {t:"2 · Sicherheit einschätzen", b:"Frag, ob akute Gefahr besteht. Wenn ja, gemeinsam die Polizei kontaktieren ({{GENERAL}}/{{POLICE}})."},
+      {t:"3 · Beweise sichern helfen", b:"Hilf, Nachrichten oder Vorfälle zu dokumentieren."},
+      {t:"4 · Begleiten", b:"Biete an, zur Polizei oder Beratungsstelle mitzukommen — allein ist dieser Schritt oft schwerer."}
+    ]
+  },
+  online_erpresst: {
+    title:"Freund wird online erpresst",
+    steps:[
+      {t:"1 · Ruhig reagieren", b:"Reagiere ohne Vorwürfe — Scham ist bei Erpressungsfällen oft das grösste Hindernis, sich Hilfe zu holen."},
+      {t:"2 · Nicht zahlen lassen", b:"Rate klar davon ab, auf Forderungen einzugehen oder zu zahlen."},
+      {t:"3 · Zum Blockieren &amp; Melden ermutigen", b:"Hilf beim Sichern von Beweisen, danach Blockieren der Person und Melden bei der Plattform und der Polizei."},
+      {t:"4 · Cyber-Notfall-Bereich zeigen", b:"Zeig ihr/ihm den Cyber-Notfall-Bereich von Lifeline mit der Sextortion-Checkliste."}
+    ]
+  },
+  kind_hilfe: {
+    title:"Kind benötigt Hilfe",
+    steps:[
+      {t:"1 · Ruhig &amp; altersgerecht ansprechen", b:"Sprich in einfachen, klaren Worten. Vermeide Panik in deiner Stimme."},
+      {t:"2 · Erwachsene einbeziehen", b:"Hol so schnell wie möglich eine Bezugsperson (Eltern, Lehrperson) dazu."},
+      {t:"3 · Notruf bei Gefahr", b:"Bei akuter Gefahr sofort {{AMBULANCE}} oder {{GENERAL}} anrufen, auch wenn kein Erwachsener sofort erreichbar ist."},
+      {t:"4 · Bei dem Kind bleiben", b:"Lass das Kind nicht allein, bis Hilfe übernimmt."}
+    ]
+  }
+};
+
+const helpGuides_en = {
+  bewusstlos: {
+    title:"Someone is unconscious",
+    steps:[
+      {t:"1 · Speak to them &amp; call for help", b:"Speak to the person loudly, shake their shoulders. No response: call {{AMBULANCE}} immediately."},
+      {t:"2 · Check breathing", b:"Tilt the head back, listen/feel/look for breathing for 10 sec. Not breathing normally → start resuscitation (see Medical Emergency)."},
+      {t:"3 · Stay with them", b:"Don't leave the person until help arrives — even if you feel unsure."}
+    ]
+  },
+  panik: {
+    title:"Someone is in a panic",
+    steps:[
+      {t:"1 · Stay calm", b:"Speak slowly and calmly. Your own calm has a soothing effect on the person."},
+      {t:"2 · Don't judge", b:"Don't say \"calm down\" or \"it's not that bad\" — that often makes panic worse. Instead, reassure them you're there."},
+      {t:"3 · Guide their breathing", b:"Visibly breathe slowly along with them — Lifeline has a breathing exercise for this (Mental Health Crisis section)."},
+      {t:"4 · Stay with them", b:"Stay with the person until the panic subsides or professional help arrives."}
+    ]
+  },
+  suizidgedanken: {
+    title:"Someone expresses suicidal thoughts",
+    steps:[
+      {t:"1 · Take it seriously &amp; listen", b:"Take every statement seriously. Listen calmly, without judging or changing the subject."},
+      {t:"2 · Ask directly", b:"Calmly and directly ask if they're thinking about ending their life. This doesn't cause harm — it shows you're listening."},
+      {t:"3 · Don't leave them alone", b:"Stay with the person, or make sure someone else stays with them, until help is arranged."},
+      {t:"4 · Get professional help", b:"Contact a crisis line together ({{CRISIS1}} or {{CRISIS2}}). For immediate danger: call {{AMBULANCE}}.", w:"You're not responsible for solving this alone — professional help matters."}
+    ]
+  },
+  bedroht_freund: {
+    title:"A friend is being threatened",
+    steps:[
+      {t:"1 · Listen &amp; believe them", b:"Take what they describe seriously, even if it seems exaggerated to you."},
+      {t:"2 · Assess safety", b:"Ask if there's immediate danger. If so, contact the police together ({{GENERAL}}/{{POLICE}})."},
+      {t:"3 · Help preserve evidence", b:"Help document messages or incidents."},
+      {t:"4 · Go with them", b:"Offer to come along to the police or a support service — this step is often harder alone."}
+    ]
+  },
+  online_erpresst: {
+    title:"A friend is being extorted online",
+    steps:[
+      {t:"1 · React calmly", b:"Respond without blame — shame is often the biggest barrier to getting help in extortion cases."},
+      {t:"2 · Advise against paying", b:"Clearly advise them not to give in to demands or pay."},
+      {t:"3 · Encourage blocking &amp; reporting", b:"Help preserve evidence, then block the person and report to the platform and police."},
+      {t:"4 · Show them Cyber Emergency", b:"Show them Lifeline's Cyber Emergency section with the sextortion checklist."}
+    ]
+  },
+  kind_hilfe: {
+    title:"A child needs help",
+    steps:[
+      {t:"1 · Speak calmly &amp; age-appropriately", b:"Use simple, clear words. Keep panic out of your voice."},
+      {t:"2 · Involve an adult", b:"Get a trusted adult (parent, teacher) involved as quickly as possible."},
+      {t:"3 · Call for help if in danger", b:"For immediate danger, call {{AMBULANCE}} or {{GENERAL}} right away, even if no adult is immediately reachable."},
+      {t:"4 · Stay with the child", b:"Don't leave the child alone until help takes over."}
+    ]
+  }
+};
+
+let helpGuides = helpGuides_de;
+function buildHelpList(){
+  const helpList = document.getElementById('help-guide-list');
+  helpList.innerHTML = '';
+  const stepsWord = appLang==='en' ? 'steps' : 'Schritte';
+  Object.entries(helpGuides).forEach(([key,s])=>{
+    const div = document.createElement('div');
+    div.className='list-item';
+    div.onclick=()=>openHelpGuide(key);
+    div.innerHTML = `<div><div class="li-title">${s.title}</div><div class="li-sub">${s.steps.length} ${stepsWord}</div></div><div class="arrow">→</div>`;
+    helpList.appendChild(div);
+  });
+}
+buildHelpList();
+function openHelpGuide(key){
+  const s = helpGuides[key];
+  curSteps = s.steps; curIndex = 0; stepReturnScreen='screen-help'; curSosNumber=EMERGENCY.ambulance;
+  document.getElementById('scenarioTitle').textContent = s.title;
+  renderStep();
+  showScreen('screen-scenario');
+}
+
+/* ---------- heuristic message / link analysis ---------- */
+function analyzeMessage(){
+  const txt = document.getElementById('msgInput').value.trim();
+  const box = document.getElementById('msgResult');
+  if(!txt){ box.innerHTML = ''; return; }
+  const flags = [];
+  const lower = txt.toLowerCase();
+  const urgency = ['sofort','dringend','innerhalb von 24','letzte warnung','konto wird gesperrt','handeln sie jetzt'];
+  const money = ['gutschein','geschenkkarte','überweisung','iban','bitcoin','krypto','gebühr bezahlen','zoll gebühr'];
+  const personal = ['passwort','pin','kreditkarte','sozialversicherungsnummer','ausweis hochladen','login-daten'];
+  const prize = ['gewonnen','gewinnspiel','lotterie','preis','du hast gewonnen'];
+  if(urgency.some(w=>lower.includes(w))) flags.push('Erzeugt künstlichen Zeitdruck ("sofort handeln")');
+  if(money.some(w=>lower.includes(w))) flags.push('Fordert Zahlung, Gutscheine oder Krypto — typisch für Betrug');
+  if(personal.some(w=>lower.includes(w))) flags.push('Fragt nach Passwörtern / sensiblen Daten — seriöse Stellen tun das nie per Nachricht');
+  if(prize.some(w=>lower.includes(w))) flags.push('Verspricht einen Gewinn ohne Teilnahme — klassischer Ködertext');
+  if(/(https?:\/\/|www\.)/i.test(txt)) flags.push('Enthält einen Link — vor dem Klicken separat mit der Linkprüfung checken');
+  if(/[A-ZÄÖÜ]{4,}/.test(txt.replace(/[^A-ZÄÖÜa-zäöü ]/g,'')) && /!!!|!!|WICHTIG|ACHTUNG/.test(txt)) flags.push('Übermässige Grossschreibung / Ausrufezeichen — häufig bei Spam');
+
+  const score = flags.length;
+  const level = score===0 ? 'niedrig' : score<=2 ? 'erhöht' : 'hoch';
+  const color = score===0 ? 'var(--calm)' : score<=2 ? 'var(--warn)' : 'var(--sos)';
+  box.innerHTML = `
+    <div style="margin-top:14px; padding:14px; border-radius:12px; background:var(--surface-2); border:1px solid var(--line);">
+      <div style="font-family:'Space Grotesk'; font-weight:700; color:${color}; margin-bottom:6px;">Risiko: ${level}</div>
+      ${flags.length? '<ul style="margin:0; padding-left:18px; font-size:13px; color:#D3DBE3; line-height:1.7;">'+flags.map(f=>`<li>${f}</li>`).join('')+'</ul>' : '<div style="font-size:13px; color:#D3DBE3;">Keine typischen Betrugsmerkmale erkannt — trotzdem im Zweifel nicht auf Links klicken oder Daten preisgeben.</div>'}
+    </div>`;
+}
+function analyzeLink(){
+  const url = document.getElementById('linkInput').value.trim();
+  const box = document.getElementById('linkResult');
+  if(!url){ box.innerHTML=''; return; }
+  const flags = [];
+  let host='';
+  try{ host = new URL(url.startsWith('http')?url:'http://'+url).hostname; }catch(e){ flags.push('Keine gültige URL erkannt'); }
+  if(!url.startsWith('https://')) flags.push('Keine sichere HTTPS-Verbindung');
+  if(/^\d{1,3}(\.\d{1,3}){3}/.test(host)) flags.push('Nutzt eine IP-Adresse statt eines Domainnamens');
+  if(url.includes('@')) flags.push('Enthält ein @-Zeichen — kann echten Domainnamen verschleiern');
+  if((host.match(/\./g)||[]).length > 3) flags.push('Ungewöhnlich viele Subdomains');
+  if(/-(login|verify|secure|update|account)/i.test(host)) flags.push('Verdächtige Schlüsselwörter im Domainnamen (z. B. "login", "verify")');
+  const suspiciousTld = ['.top','.xyz','.click','.zip','.gq','.tk'];
+  if(suspiciousTld.some(t=>host.endsWith(t))) flags.push('Endet auf eine häufig für Betrug genutzte Domainendung');
+  const score = flags.length;
+  const level = score===0 ? 'niedrig' : score<=2 ? 'erhöht' : 'hoch';
+  const color = score===0 ? 'var(--calm)' : score<=2 ? 'var(--warn)' : 'var(--sos)';
+  box.innerHTML = `
+    <div style="margin-top:14px; padding:14px; border-radius:12px; background:var(--surface-2); border:1px solid var(--line);">
+      <div style="font-family:'Space Grotesk'; font-weight:700; color:${color}; margin-bottom:6px;">Risiko: ${level}</div>
+      ${flags.length? '<ul style="margin:0; padding-left:18px; font-size:13px; color:#D3DBE3; line-height:1.7;">'+flags.map(f=>`<li>${f}</li>`).join('')+'</ul>' : '<div style="font-size:13px; color:#D3DBE3;">Keine typischen Warnsignale erkannt — trotzdem nur bekannten Anbietern vertrauen.</div>'}
+    </div>`;
+}
+
+/* ---------- wallet card ---------- */
+async function openWalletCard(){
+  const contacts = await getContacts();
+  const noContactMsg = isLocked() ? I18N[appLang].lockedContacts : I18N[appLang].noContactMsg;
+  const contactLine = contacts.length ? `${contacts[0].name} · ${contacts[0].phone}` : noContactMsg;
+  const L = appLang==='en' ? {
+    title:'EMERGENCY CARD', phoneStolen:'PHONE STOLEN?',
+    steps:['1. Lock / locate (Find My)','2. Ask carrier to block SIM','3. Change email & banking passwords','4. File a police report'],
+    numHead:`EMERGENCY NUMBERS (${EMERGENCY.countryLabel})`, contact:'TRUSTED CONTACT'
+  } : {
+    title:'NOTFALLKARTE', phoneStolen:'HANDY WEG?',
+    steps:['1. Sperren / orten (Find My)','2. SIM beim Anbieter sperren','3. Mail- & Bank-Passwörter ändern','4. Anzeige bei der Polizei erstatten'],
+    numHead:`NOTFALLNUMMERN (${EMERGENCY.countryLabel})`, contact:'VERTRAUENSPERSON'
+  };
+
+  const canvas = document.getElementById('walletCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = 750, H = 1180;
+  canvas.width = W; canvas.height = H;
+
+  // background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle = '#d8d8d8';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(6,6,W-12,H-12);
+
+  let y = 90;
+  ctx.fillStyle = '#B8362C';
+  ctx.font = '700 40px sans-serif';
+  ctx.fillText('LIFELINE', 50, y);
+  ctx.font = '600 24px sans-serif';
+  ctx.fillStyle = '#555';
+  y += 36;
+  ctx.fillText(L.title, 50, y);
+
+  y += 70;
+  ctx.strokeStyle = '#eee'; ctx.beginPath(); ctx.moveTo(50,y); ctx.lineTo(W-50,y); ctx.stroke();
+
+  function section(title){
+    y += 55;
+    ctx.fillStyle = '#111';
+    ctx.font = '700 26px sans-serif';
+    ctx.fillText(title, 50, y);
+    y += 16;
+  }
+  function wrapLine(text, opts){
+    y += (opts&&opts.big) ? 44 : 38;
+    ctx.font = (opts&&opts.big) ? '600 26px sans-serif' : '400 24px sans-serif';
+    ctx.fillStyle = '#222';
+    ctx.fillText(text, 50, y);
+  }
+
+  section(L.phoneStolen);
+  L.steps.forEach(l=>wrapLine(l));
+
+  y += 20;
+  ctx.strokeStyle = '#eee'; ctx.beginPath(); ctx.moveTo(50,y); ctx.lineTo(W-50,y); ctx.stroke();
+
+  section(L.numHead);
+  wrapLine(`${EMERGENCY.ambulance} ${appLang==='en'?'Ambulance':'Sanität'}`, {big:true});
+  wrapLine(`${EMERGENCY.police} ${appLang==='en'?'Police':'Polizei'}`, {big:true});
+  wrapLine(`${EMERGENCY.fire} ${appLang==='en'?'Fire':'Feuerwehr'}`, {big:true});
+  if(EMERGENCY.general !== EMERGENCY.ambulance){
+    wrapLine(`${EMERGENCY.general} ${appLang==='en'?'General emergency':'Allg. Notruf'}`, {big:true});
+  }
+  y += 10;
+  wrapLine(`${EMERGENCY.crisis1.num} ${EMERGENCY.crisis1.label}`);
+  wrapLine(`${EMERGENCY.crisis2.num} ${EMERGENCY.crisis2.label}`);
+
+  y += 20;
+  ctx.strokeStyle = '#eee'; ctx.beginPath(); ctx.moveTo(50,y); ctx.lineTo(W-50,y); ctx.stroke();
+
+  section(L.contact);
+  ctx.font = '600 26px sans-serif';
+  ctx.fillStyle = '#222';
+  y += 38;
+  ctx.fillText(contactLine, 50, y);
+
+  const dataUrl = canvas.toDataURL('image/png');
+  document.getElementById('walletCardDownload').href = dataUrl;
+  document.getElementById('walletCardPreview').style.display = 'block';
+  showToast(I18N[appLang].walletCreated);
+}
+
+/* ---------- toast ---------- */
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.opacity='1';
+  t.style.transform='translate(-50%,0)';
+  clearTimeout(showToast._timer);
+  showToast._timer = setTimeout(()=>{
+    t.style.opacity='0';
+    t.style.transform='translate(-50%,20px)';
+  },2200);
+}
+
+/* ---------- silent alarm ---------- */
+function silentAlarm(){
+  if(navigator.vibrate) navigator.vibrate(40);
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(()=>{}, ()=>{}, {timeout:4000});
+  }
+  showToast(I18N[appLang].silentAlarmSent);
+}
+
+/* ---------- disguise mode (Tarnmodus) ---------- */
+let calcVal='0', calcHoldTimer=null;
+const calcKeys = ['C','±','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','.','='];
+(function buildCalc(){
+  const grid = document.getElementById('calcGrid');
+  calcKeys.forEach(k=>{
+    const b = document.createElement('button');
+    b.textContent = k;
+    b.style.cssText = 'padding:20px 0; border:none; border-radius:12px; font-size:20px; background:#2a2a2a; color:#fff; cursor:pointer;';
+    if(['÷','×','−','+','='].includes(k)) b.style.background='#ff9f0a';
+    if(k==='0') b.style.gridColumn='span 2';
+    b.onclick=()=>calcPress(k);
+    grid.appendChild(b);
+  });
+})();
+function calcPress(k){
+  const d = document.getElementById('calcDisplay');
+  if(k==='C'){ calcVal='0'; }
+  else if(k==='='){ 
+    try{ calcVal = String(Function('"use strict";return('+calcVal.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-')+')')()); }
+    catch(e){ calcVal='Fehler'; }
+  }
+  else { calcVal = (calcVal==='0' && !isNaN(k)) ? k : calcVal+k; }
+  d.textContent = calcVal;
+}
+function enterDisguise(){
+  document.getElementById('disguiseOverlay').classList.add('active');
+}
+function calcHoldStart(){
+  calcHoldTimer = setTimeout(()=>{
+    document.getElementById('disguiseOverlay').classList.remove('active');
+  }, 1500);
+}
+function calcHoldEnd(){ clearTimeout(calcHoldTimer); }
+
+/* ---------- audio / video recording ---------- */
+let mediaRecorder=null, recChunks=[], recStream=null, recMode=null;
+async function toggleAudioRec(){ toggleRec('audio'); }
+async function toggleVideoRec(){ toggleRec('video'); }
+async function toggleRec(mode){
+  const btn = document.getElementById(mode==='audio'?'audioRecBtn':'videoRecBtn');
+  if(mediaRecorder && mediaRecorder.state==='recording' && recMode===mode){
+    mediaRecorder.stop();
+    return;
+  }
+  try{
+    const constraints = mode==='audio' ? {audio:true} : {audio:true, video:true};
+    recStream = await navigator.mediaDevices.getUserMedia(constraints);
+    recMode = mode; recChunks=[];
+    mediaRecorder = new MediaRecorder(recStream);
+    mediaRecorder.ondataavailable = e=>{ if(e.data.size>0) recChunks.push(e.data); };
+    mediaRecorder.onstop = ()=>{
+      const blob = new Blob(recChunks, {type: mode==='audio'?'audio/webm':'video/webm'});
+      const url = URL.createObjectURL(blob);
+      addRecording(mode, url);
+      recStream.getTracks().forEach(t=>t.stop());
+      btn.querySelector('.qlabel').textContent = mode==='audio' ? I18N[appLang].recAudio : I18N[appLang].recVideo;
+    };
+    mediaRecorder.start();
+    btn.querySelector('.qlabel').textContent = I18N[appLang].recStopLabel;
+    showToast(mode==='audio' ? I18N[appLang].recAudioRunning : I18N[appLang].recVideoRunning);
+  }catch(err){
+    showToast(mode==='audio' ? I18N[appLang].micDenied : I18N[appLang].camDenied);
+  }
+}
+function addRecording(mode, url){
+  const wrap = document.getElementById('recordingsWrap');
+  const item = document.createElement('div');
+  item.className='panel';
+  item.style.marginTop='12px';
+  const stamp = new Date().toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
+  item.innerHTML = `
+    <div class="li-title" style="margin-bottom:8px;">${mode==='audio'?'🎙 Audioaufnahme':'🎥 Videoaufnahme'} · ${stamp}</div>
+    ${mode==='audio' ? `<audio controls src="${url}" style="width:100%;"></audio>` : `<video controls src="${url}" style="width:100%; border-radius:10px;"></video>`}
+    <a class="btn btn-secondary" style="display:block; margin-top:10px;" href="${url}" download="guardian-${mode}-${Date.now()}.webm">Herunterladen</a>
+  `;
+  wrap.prepend(item);
+}
+
+/* ---------- CPR metronome ---------- */
+let metroActive=false, metroTimer=null, beatCount=0, audioCtx=null;
+function beep(){
+  if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.frequency.value=880; o.type='sine';
+  g.gain.setValueAtTime(0.15, audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+0.08);
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start(); o.stop(audioCtx.currentTime+0.08);
+}
+function toggleMetro(){
+  metroActive = !metroActive;
+  document.getElementById('metroBtn').textContent = metroActive ? I18N[appLang].cprStop : I18N[appLang].cprStart;
+  if(metroActive){
+    beatCount=0;
+    metroTimer = setInterval(()=>{
+      beatCount++;
+      document.getElementById('bpmCount').textContent = beatCount;
+      const p = document.getElementById('pulse');
+      p.classList.remove('go'); void p.offsetWidth; p.classList.add('go');
+      beep();
+      if(navigator.vibrate) navigator.vibrate(30);
+    }, 545); // ~110bpm
+  } else {
+    clearInterval(metroTimer);
+  }
+}
+
+/* ---------- danger: hold to trigger ---------- */
+const holdBtn = document.getElementById('holdBtn');
+const holdProgress = document.getElementById('holdProgress');
+let holdTimer=null, holdStart=null;
+const HOLD_MS = 3000;
+
+function startHold(){
+  holdStart = Date.now();
+  holdTimer = requestAnimationFrame(stepHold);
+}
+function stepHold(){
+  const elapsed = Date.now()-holdStart;
+  const pct = Math.min(elapsed/HOLD_MS,1);
+  holdProgress.style.background = `conic-gradient(#fff ${pct*360}deg, transparent ${pct*360}deg)`;
+  if(pct>=1){ triggerAlarm(); return; }
+  holdTimer = requestAnimationFrame(stepHold);
+}
+function stopHold(){
+  cancelAnimationFrame(holdTimer);
+  holdProgress.style.background='conic-gradient(#fff 0deg, transparent 0deg)';
+}
+holdBtn.addEventListener('touchstart', e=>{e.preventDefault(); startHold();});
+holdBtn.addEventListener('touchend', stopHold);
+holdBtn.addEventListener('mousedown', startHold);
+holdBtn.addEventListener('mouseup', stopHold);
+holdBtn.addEventListener('mouseleave', stopHold);
+
+let alarmCancelled=false, alarmCountdownTimer=null;
+function triggerAlarm(){
+  stopHold();
+  alarmCancelled=false;
+  const overlay = document.getElementById('alarmOverlay');
+  overlay.classList.add('active');
+  document.getElementById('cancelBtn').style.display='block';
+  document.getElementById('cancelBtn').textContent=I18N[appLang].alarmCancel;
+  document.getElementById('closeBtn').style.display='none';
+  document.getElementById('ovTitle').textContent=I18N[appLang].alarmTitle;
+  document.getElementById('ovSub').textContent=I18N[appLang].alarmSub;
+  document.getElementById('ovContacts').innerHTML='';
+  let n=3;
+  document.getElementById('ovRing').textContent=n;
+  if(navigator.vibrate) navigator.vibrate([100,60,100]);
+  alarmCountdownTimer = setInterval(()=>{
+    n--;
+    document.getElementById('ovRing').textContent = n>0?n:'✓';
+    if(n<=0){
+      clearInterval(alarmCountdownTimer);
+      if(!alarmCancelled) sendAlarm();
+    }
+  },1000);
+}
+function cancelAlarm(){
+  alarmCancelled=true;
+  clearInterval(alarmCountdownTimer);
+  document.getElementById('alarmOverlay').classList.remove('active');
+}
+function closeAlarm(){
+  document.getElementById('alarmOverlay').classList.remove('active');
+}
+async function sendAlarm(){
+  document.getElementById('ovTitle').textContent=I18N[appLang].alarmSentTitle;
+  document.getElementById('ovSub').textContent=I18N[appLang].alarmSentSub;
+  document.getElementById('cancelBtn').style.display='none';
+  document.getElementById('closeBtn').style.display='block';
+  document.getElementById('closeBtn').textContent=I18N[appLang].alarmDone;
+  document.getElementById('cancelBtn').textContent=I18N[appLang].alarmCancel;
+  const contacts = await getContacts();
+  const list = document.getElementById('ovContacts');
+  if(contacts.length===0){
+    const msg = isLocked() ? I18N[appLang].lockedContacts : I18N[appLang].noContactsAlarm;
+    list.innerHTML = `<div class="empty">${msg}</div>`;
+  } else {
+    list.innerHTML = contacts.map(c=>`<div class="list-item" style="cursor:default;"><div><div class="li-title">${c.name}</div><div class="li-sub">${I18N[appLang].alarmSentTag}</div></div><div class="arrow">✓</div></div>`).join('');
+  }
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos=>{
+      // Standort erfolgreich ermittelt (Demo — würde an Kontakte gesendet)
+    }, ()=>{}, {timeout:4000});
+  }
+}
+
+/* ---------- fake call ---------- */
+let fakeRing=null;
+function startFakeCall(){
+  setTimeout(()=>{
+    document.getElementById('callOverlay').classList.add('active');
+    if(navigator.vibrate) navigator.vibrate([500,200,500,200,500]);
+    playRing();
+  }, 4000);
+}
+function playRing(){
+  if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  fakeRing = setInterval(()=>{
+    if(!document.getElementById('callOverlay').classList.contains('active')){ clearInterval(fakeRing); return; }
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.frequency.value=440; g.gain.value=0.08;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime+0.3);
+  },900);
+}
+function endFakeCall(){
+  document.getElementById('callOverlay').classList.remove('active');
+  clearInterval(fakeRing);
+}
+
+/* ---------- breathing exercise ---------- */
+let breatheActive=false, breatheTimer=null;
+function toggleBreathe(){
+  breatheActive=!breatheActive;
+  const circle = document.getElementById('breatheCircle');
+  const btn = document.getElementById('breatheBtn');
+  if(breatheActive){
+    btn.textContent=I18N[appLang].breatheStop;
+    breathePhase(0);
+  } else {
+    btn.textContent=I18N[appLang].breatheStart;
+    clearTimeout(breatheTimer);
+    circle.className='breathe-circle';
+    circle.textContent='Start';
+  }
+}
+function breathePhase(i){
+  if(!breatheActive) return;
+  const circle = document.getElementById('breatheCircle');
+  const phases = appLang==='en' ? [
+    {cls:'in', label:'Breathe in …'},
+    {cls:'hold', label:'Hold …'},
+    {cls:'out', label:'Breathe out …'},
+    {cls:'hold', label:'Hold …'}
+  ] : [
+    {cls:'in', label:'Einatmen …'},
+    {cls:'hold', label:'Halten …'},
+    {cls:'out', label:'Ausatmen …'},
+    {cls:'hold', label:'Halten …'}
+  ];
+  const p = phases[i%4];
+  circle.className='breathe-circle '+p.cls;
+  circle.textContent=p.label;
+  breatheTimer = setTimeout(()=>breathePhase(i+1), 4000);
+}
+
+/* ---------- safety plan ---------- */
+async function savePlan(){
+  const plan = {
+    warn: document.getElementById('sp1').value,
+    calm: document.getElementById('sp2').value,
+    contact: document.getElementById('sp3').value
+  };
+  await savePlanData(plan);
+  alert(I18N[appLang].planSavedMsg);
+}
+async function loadPlan(){
+  if(isLocked()){
+    document.getElementById('sp1').value='';
+    document.getElementById('sp2').value='';
+    document.getElementById('sp3').value='';
+    return;
+  }
+  const raw = localStorage.getItem('lifeline_plan');
+  if(!raw) return;
+  let p = null;
+  try{
+    if(hasPinSet() && sessionKey){
+      p = await decryptJSON(JSON.parse(raw), sessionKey);
+    } else {
+      p = JSON.parse(raw);
+    }
+  }catch(e){ p = null; }
+  if(p){
+    document.getElementById('sp1').value = p.warn||'';
+    document.getElementById('sp2').value = p.calm||'';
+    document.getElementById('sp3').value = p.contact||'';
+  }
+}
+
+/* ---------- trusted contacts ---------- */
+function isLocked(){ return hasPinSet() && !sessionKey; }
+async function getContacts(){
+  if(isLocked()) return [];
+  const raw = localStorage.getItem('lifeline_contacts');
+  if(!raw) return [];
+  if(hasPinSet() && sessionKey){
+    const dec = await decryptJSON(JSON.parse(raw), sessionKey);
+    return dec || [];
+  }
+  try{ return JSON.parse(raw); }catch(e){ return []; }
+}
+async function setContacts(list){
+  await saveContactsData(list);
+}
+async function renderContacts(){
+  const wrap = document.getElementById('contactList');
+  if(isLocked()){
+    wrap.innerHTML = `<div class="empty">${I18N[appLang].lockedContacts}</div>`;
+    return;
+  }
+  const contacts = await getContacts();
+  if(contacts.length===0){
+    wrap.innerHTML = `<div class="empty">${I18N[appLang].noContactsYet}</div>`;
+    return;
+  }
+  wrap.innerHTML = contacts.map((c,i)=>`
+    <div class="list-item" style="cursor:default;">
+      <div><div class="li-title">${c.name}</div><div class="li-sub">${c.phone}</div></div>
+      <div class="arrow" style="cursor:pointer;" onclick="removeContact(${i})">✕</div>
+    </div>`).join('');
+}
+/* ---------- optional local encryption (Web Crypto) ---------- */
+let sessionKey = null; // CryptoKey once unlocked; null = locked or no PIN set
+
+function hasPinSet(){
+  try{ return !!localStorage.getItem('lifeline_pin_salt'); }catch(e){ return false; }
+}
+function b64(buf){ return btoa(String.fromCharCode(...new Uint8Array(buf))); }
+function unb64(str){ return Uint8Array.from(atob(str), c=>c.charCodeAt(0)); }
+
+async function deriveKey(pin, saltB64){
+  const enc = new TextEncoder();
+  const salt = unb64(saltB64);
+  const baseKey = await crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name:'PBKDF2', salt, iterations:150000, hash:'SHA-256' },
+    baseKey, { name:'AES-GCM', length:256 }, false, ['encrypt','decrypt']
+  );
+}
+async function encryptJSON(obj, key){
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const enc = new TextEncoder().encode(JSON.stringify(obj));
+  const cipher = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, enc);
+  return { iv: b64(iv), data: b64(cipher) };
+}
+async function decryptJSON(payload, key){
+  try{
+    const iv = unb64(payload.iv);
+    const cipher = unb64(payload.data);
+    const plain = await crypto.subtle.decrypt({name:'AES-GCM', iv}, key, cipher);
+    return JSON.parse(new TextDecoder().decode(plain));
+  }catch(e){ return null; }
+}
+
+async function setupPin(pin){
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const saltB64 = b64(salt);
+  const key = await deriveKey(pin, saltB64);
+  // migrate any existing plaintext data to encrypted storage
+  const accRaw = localStorage.getItem('lifeline_account');
+  const contactsRaw = localStorage.getItem('lifeline_contacts');
+  const planRaw = localStorage.getItem('lifeline_plan');
+  try{ localStorage.setItem('lifeline_pin_salt', saltB64); }catch(e){}
+  sessionKey = key;
+  if(accRaw) await saveAccountData(JSON.parse(accRaw));
+  if(contactsRaw) await saveContactsData(JSON.parse(contactsRaw));
+  if(planRaw) await savePlanData(JSON.parse(planRaw));
+  try{
+    localStorage.removeItem('lifeline_account_plain');
+  }catch(e){}
+}
+async function unlockWithPin(pin){
+  const saltB64 = localStorage.getItem('lifeline_pin_salt');
+  if(!saltB64) return true; // no PIN set, nothing to unlock
+  const key = await deriveKey(pin, saltB64);
+  // verify by attempting to decrypt account (or contacts if no account yet)
+  const raw = localStorage.getItem('lifeline_account') || localStorage.getItem('lifeline_contacts');
+  if(!raw){ sessionKey = key; return true; } // nothing stored yet, accept
+  const test = await decryptJSON(JSON.parse(raw), key);
+  if(test===null && JSON.parse(raw).iv) return false; // wrong PIN
+  sessionKey = key;
+  return true;
+}
+function lockSession(){ sessionKey = null; }
+function removePin(){
+  try{
+    localStorage.removeItem('lifeline_pin_salt');
+  }catch(e){}
+  sessionKey = null;
+}
+
+async function saveAccountData(acc){
+  if(hasPinSet() && sessionKey){
+    const enc = await encryptJSON(acc, sessionKey);
+    try{ localStorage.setItem('lifeline_account', JSON.stringify(enc)); }catch(e){}
+  } else {
+    try{ localStorage.setItem('lifeline_account', JSON.stringify(acc)); }catch(e){}
+  }
+}
+async function saveContactsData(list){
+  if(hasPinSet() && sessionKey){
+    const enc = await encryptJSON(list, sessionKey);
+    try{ localStorage.setItem('lifeline_contacts', JSON.stringify(enc)); }catch(e){}
+  } else {
+    try{ localStorage.setItem('lifeline_contacts', JSON.stringify(list)); }catch(e){}
+  }
+}
+async function savePlanData(plan){
+  if(hasPinSet() && sessionKey){
+    const enc = await encryptJSON(plan, sessionKey);
+    try{ localStorage.setItem('lifeline_plan', JSON.stringify(enc)); }catch(e){}
+  } else {
+    try{ localStorage.setItem('lifeline_plan', JSON.stringify(plan)); }catch(e){}
+  }
+}
+
+/* ---------- account ---------- */
+async function getAccount(){
+  if(isLocked()) return null;
+  const raw = localStorage.getItem('lifeline_account');
+  if(!raw) return null;
+  if(hasPinSet() && sessionKey){
+    return await decryptJSON(JSON.parse(raw), sessionKey);
+  }
+  try{ return JSON.parse(raw); }catch(e){ return null; }
+}
+async function saveAccount(){
+  const acc = {
+    name: document.getElementById('accName').value.trim(),
+    age: document.getElementById('accAge').value.trim(),
+    phone: document.getElementById('accPhone').value.trim(),
+    email: document.getElementById('accEmail').value.trim(),
+    lang: document.getElementById('accLang').value.trim(),
+    country: document.getElementById('accCountry').value.trim(),
+    blood: document.getElementById('accBlood').value.trim(),
+    allergies: document.getElementById('accAllergies').value.trim(),
+    meds: document.getElementById('accMeds').value.trim(),
+    conditions: document.getElementById('accConditions').value.trim()
+  };
+  await saveAccountData(acc);
+  const msg = document.getElementById('accSavedMsg');
+  msg.textContent = I18N[appLang].savedMsg;
+  msg.style.display = 'block';
+  setTimeout(()=>{ msg.style.display='none'; }, 2200);
+  applyCountry(acc.country);
+}
+async function loadAccount(){
+  if(isLocked()){
+    ['accName','accAge','accPhone','accEmail','accLang','accCountry','accBlood','accAllergies','accMeds','accConditions'].forEach(id=>{
+      document.getElementById(id).value = '';
+    });
+    return;
+  }
+  const acc = await getAccount();
+  if(!acc) return;
+  document.getElementById('accName').value = acc.name||'';
+  document.getElementById('accAge').value = acc.age||'';
+  document.getElementById('accPhone').value = acc.phone||'';
+  document.getElementById('accEmail').value = acc.email||'';
+  document.getElementById('accLang').value = acc.lang||'';
+  document.getElementById('accCountry').value = acc.country||'';
+  document.getElementById('accBlood').value = acc.blood||'';
+  document.getElementById('accAllergies').value = acc.allergies||'';
+  document.getElementById('accMeds').value = acc.meds||'';
+  document.getElementById('accConditions').value = acc.conditions||'';
+}
+async function renderGreeting(){
+  const acc = await getAccount();
+  const el = document.getElementById('homeGreeting');
+  if(!el) return;
+  el.textContent = (acc && acc.name) ? `${I18N[appLang].greeting}, ${acc.name}` : '';
+}
+
+function renderPinPanel(){
+  const panel = document.getElementById('pinPanel');
+  if(!panel) return;
+  const t = I18N[appLang];
+  if(!hasPinSet()){
+    panel.innerHTML = `
+      <h3 style="margin:0 0 4px; font-size:15px;">${t.pinTitle}</h3>
+      <p style="color:var(--muted); font-size:13px; margin:0 0 12px;">${t.pinDescSetup}</p>
+      <div class="field"><input id="pinNew" type="password" inputmode="numeric" placeholder="${t.pinNew}"></div>
+      <div class="field"><input id="pinConfirm" type="password" inputmode="numeric" placeholder="${t.pinConfirm}"></div>
+      <div id="pinError" style="color:var(--sos); font-size:12.5px; margin-bottom:8px; display:none;"></div>
+      <button class="btn btn-primary" onclick="handlePinSetup()">${t.pinActivate}</button>
+    `;
+  } else if(isLocked()){
+    panel.innerHTML = `
+      <h3 style="margin:0 0 4px; font-size:15px;">${t.pinLockedTitle}</h3>
+      <p style="color:var(--muted); font-size:13px; margin:0 0 12px;">${t.pinLockedDesc}</p>
+      <div class="field"><input id="pinUnlockInput" type="password" inputmode="numeric" placeholder="${t.pinEnter}"></div>
+      <div id="pinError" style="color:var(--sos); font-size:12.5px; margin-bottom:8px; display:none;"></div>
+      <button class="btn btn-primary" onclick="handlePinUnlock()">${t.pinUnlock}</button>
+    `;
+  } else {
+    panel.innerHTML = `
+      <h3 style="margin:0 0 4px; font-size:15px;">${t.pinUnlockedTitle}</h3>
+      <div class="step-nav">
+        <button class="btn btn-secondary" onclick="handlePinLock()">${t.pinLockBtn}</button>
+        <button class="btn btn-ghost" onclick="handlePinRemove()">${t.pinRemoveBtn}</button>
+      </div>
+    `;
+  }
+}
+function pinError(msg){
+  const el = document.getElementById('pinError');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+async function handlePinSetup(){
+  const pin = document.getElementById('pinNew').value;
+  const confirm = document.getElementById('pinConfirm').value;
+  if(pin.length < 4){ pinError(I18N[appLang].pinTooShort); return; }
+  if(pin !== confirm){ pinError(I18N[appLang].pinMismatch); return; }
+  await setupPin(pin);
+  renderPinPanel();
+  renderContacts();
+  loadAccount();
+  loadPlan();
+}
+async function handlePinUnlock(){
+  const pin = document.getElementById('pinUnlockInput').value;
+  const ok = await unlockWithPin(pin);
+  if(!ok){ pinError(I18N[appLang].pinWrong); return; }
+  renderPinPanel();
+  renderContacts();
+  loadAccount();
+  loadPlan();
+  const acc = await getAccount();
+  if(acc && acc.country) applyCountry(acc.country);
+}
+function handlePinLock(){
+  lockSession();
+  renderPinPanel();
+  renderContacts();
+  loadAccount();
+}
+async function handlePinRemove(){
+  if(!confirm(I18N[appLang].pinRemoveConfirm)) return;
+  // decrypt current data with the active session key, then store as plaintext
+  const acc = await getAccount();
+  const contacts = await getContacts();
+  const planRaw = localStorage.getItem('lifeline_plan');
+  let plan = null;
+  try{
+    plan = planRaw ? await decryptJSON(JSON.parse(planRaw), sessionKey) : null;
+  }catch(e){}
+  removePin();
+  if(acc) try{ localStorage.setItem('lifeline_account', JSON.stringify(acc)); }catch(e){}
+  try{ localStorage.setItem('lifeline_contacts', JSON.stringify(contacts||[])); }catch(e){}
+  if(plan) try{ localStorage.setItem('lifeline_plan', JSON.stringify(plan)); }catch(e){}
+  renderPinPanel();
+  renderContacts();
+  loadAccount();
+  loadPlan();
+}
+
+/* ---------- app boot ---------- */
+(async function init(){
+  renderPinPanel();
+  const acc = await getAccount();
+  if(acc && acc.country){
+    applyCountry(acc.country);
+  } else {
+    applyTranslations();
+    renderGreeting();
+  }
+})();
+
+async function addContact(){
+  const name = document.getElementById('cName').value.trim();
+  const phone = document.getElementById('cPhone').value.trim();
+  if(!name || !phone){ alert(I18N[appLang].contactRequired); return; }
+  const contacts = await getContacts();
+  contacts.push({name,phone});
+  await setContacts(contacts);
+  document.getElementById('cName').value='';
+  document.getElementById('cPhone').value='';
+  renderContacts();
+}
+async function removeContact(i){
+  const contacts = await getContacts();
+  contacts.splice(i,1);
+  await setContacts(contacts);
+  renderContacts();
+}
+renderContacts();
+
+/* ---------- offline install (PWA) ---------- */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
