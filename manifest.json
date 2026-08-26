@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "Lifeline — Krisen- und Sicherheitsplattform",
+  "name": "Lifeline — Crisis & Safety Platform",
   "short_name": "Lifeline",
-  "description": "Medizinische Notfälle, Gefahr, psychische Krisen und Cyber-Bedrohungen an einem Ort.",
+  "description": "Medical emergencies, danger, mental health crises, and cyber threats — all in one place.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -15,4 +15,5 @@
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }
+
 
