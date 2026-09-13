@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lifeline — Support</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0A1628;
+    --surface:#142743;
+    --surface-2:#1C3557;
+    --line:#2A4870;
+    --text:#F5F8FC;
+    --muted:#8FA3C4;
+    --sos:#E4483C;
+    --calm:#4FA490;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0; padding:0;}
+  body{
+    background:var(--ink);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    line-height:1.6;
+    padding:32px 20px 60px;
+  }
+  .wrap{max-width:640px; margin:0 auto;}
+  h1,h2{font-family:'Space Grotesk',sans-serif;}
+  .brand{
+    display:flex; align-items:center; gap:12px; margin-bottom:32px;
+  }
+  .brand-name{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:20px;}
+  h1{font-size:26px; margin:0 0 6px;}
+  .sub{color:var(--muted); font-size:15px; margin:0 0 32px;}
+  .panel{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px 24px;
+    margin-bottom:20px;
+  }
+  .panel h2{font-size:17px; margin:0 0 10px;}
+  .panel p{margin:0 0 8px; font-size:15px; color:#D3DBE3;}
+  .panel p:last-child{margin-bottom:0;}
+  a.email{
+    display:inline-block;
+    color:var(--text);
+    background:var(--sos);
+    padding:12px 20px;
+    border-radius:12px;
+    text-decoration:none;
+    font-weight:600;
+    margin-top:8px;
+  }
+  a.email:hover{opacity:0.9;}
+  .faq-q{font-weight:600; margin-top:16px; margin-bottom:4px; font-size:15px;}
+  .faq-q:first-child{margin-top:0;}
+  footer{
+    text-align:center;
+    color:var(--muted);
+    font-size:13px;
+    margin-top:40px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <div class="brand-name">Lifeline</div>
+  </div>
+
+  <h1>Support</h1>
+  <p class="sub">Questions, feedback, or something not working as expected? We're here to help.</p>
+
+  <div class="panel">
+    <h2>Contact us</h2>
+    <p>For any questions, bug reports, or feedback about Lifeline, reach out by email — we typically respond within a few days.</p>
+    <a class="email" href="mailto:lifeline.crisisapp@gmail.com">lifeline.crisisapp@gmail.com</a>
+  </div>
+
+  <div class="panel">
+    <h2>Frequently asked questions</h2>
+
+    <div class="faq-q">Does Lifeline replace calling emergency services?</div>
+    <p>No. Lifeline provides guidance and quick access to the correct local emergency numbers, but it doesn't replace calling emergency services or professional help in a real emergency.</p>
+
+    <div class="faq-q">Is my data sent anywhere?</div>
+    <p>No. Lifeline has no server. Your contacts, safety plan, and account details stay only on your device. The SOS feature sends a message through your phone's own Messages app — Lifeline never transmits or stores this data itself.</p>
+
+    <div class="faq-q">Why does the SOS alarm open my Messages app instead of sending automatically?</div>
+    <p>This is intentional — it means you always see and control exactly what gets sent to your trusted contacts before it goes out.</p>
+
+    <div class="faq-q">I found a bug or have a feature request.</div>
+    <p>Please email us at the address above with as much detail as possible (what you did, what you expected, what happened instead). It really helps.</p>
+  </div>
+
+  <footer>Lifeline — Clear. Easy. Fast.</footer>
+</div>
+</body>
+</html>
